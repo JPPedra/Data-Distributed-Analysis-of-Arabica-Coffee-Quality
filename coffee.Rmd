@@ -17,12 +17,14 @@ colnames(coffee)
 
 - Maybe get rid of the followings:
   - Owner
+  -hello
   - Farm Name
   - Lot Number
   - Mill 
   - ICO Number
   - Company
   - Region
+  -hello
   - Producer
   - In country Partner
   - Harvest Year
