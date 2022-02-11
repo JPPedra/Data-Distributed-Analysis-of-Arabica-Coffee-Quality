@@ -1,0 +1,93 @@
+---
+title: "Coffee"
+author: "Hawra Nawrozzadeh"
+date: "03/02/2022"
+output: html_document
+---
+
+```{r}
+coffee <- read.csv("data/Coffee-modified.csv", stringsAsFactors = T)
+```
+
+```{r}
+str(coffee)
+summary(coffee)
+colnames(coffee)
+```
+
+- Maybe get rid of the followings:
+  - Owner
+  - Farm Name
+  - Lot Number
+  - Mill 
+  - ICO Number
+  - Company
+  - Region
+  - Producer
+  - In country Partner
+  - Harvest Year
+  - Owner 1
+  - Expiration
+  - Certification Body
+  - certification address 
+  - Certification number
+  - Unit of measurements
+  
+-  Columns to keep:
+ - ID
+ - Species
+ - Orgin of Country
+ - Altitude
+ - No. of bags
+ - Bag weight
+ - Grading Date
+ - Variety
+ - Processing method
+ - Aroma 
+ - Flavor
+ - Aftertaste
+ - Acidity
+ - Body
+ - Balance
+ - Uniformity
+ - Clean.up
+ - Sweetness
+ - Cupper.Point
+ - Total.Cup.point
+ - Moisture
+ - Quakers
+ - colors
+ - the last 3 
+```{r}
+View(table(coffee$Owner.1))
+View(table(coffee$Country.of.Origin))
+table(coffee$Variety)
+table(coffee$Category.One.Defects)
+table(coffee$Category.Two.Defects)
+
+
+#coffee[ ,c("Species", "Altitude", "Number.of.Bags", "Bag.Weight", "Processing.Method", "Aroma", "Flavor", "Aftertaste", "Acidity", "Body", "Balance", "Uniformity", "Clean.Up", "Sweetness")]
+
+coffee_new <- coffee[ ,c(1, 2, 4, 10, 13, 14, 17, 19:32, 34, 42:44)]
+```
+
+Data Preparation and Cleaning
+  - Feature and Selection Process
+  - `as.factor()`
+  - Make sure the decimal columns are in the right data type
+  - In general, checking the structure and check that they are all in the same data type
+  - Maybe use validate package
+  
+  - Dealing with Outliers
+  - Missing Data --> Imputation
+  - Remove duplicates
+
+```{r}
+summary()
+```
+
+```{r}
+coffee_1 <- read.csv("data/coffee.csv")
+```
+
+
