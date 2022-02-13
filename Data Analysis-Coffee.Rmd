@@ -56,15 +56,29 @@ coffee <- read.csv("data/Coffee-modified.csv")
 ## 3.2 Data Qaulity Check (or something like this)
 
 ```{r}
-#str(coffee)
+str(coffee)
 summary(coffee)
 ```
-From the summary function, it seems that we have 35 attributes that are maybe categorical and the rest of the 9 attributes seems to be numerical continuous. Additionally, we can already identify errors such as missing data and possible outliers....
+-From the summary and str .... function, it seems R has processed the dataset with  35 attributes categorical variables and the rest of the 9 attributes to be numerical continuous.
+- However, this seems to be incorrect format because the in correct datatype..... e.g. ID and bla bla should be integer instead ...
+- Additionally, we can already identify errors such as missing data and possible outliers (from looking at the ranges)...
+
+- Lets further look into the different levels by creating an object that converts the strings into a factor. By doing this, we can also see other details that we will help us to decide which attributes are redundant or irrelavent for our research question.
 
 Let's further investigate this and see if R interpreted these data types correctly
 ```{r}
-str(coffee)
+coffee_fac_lev <- read.csv("data/Coffee-modified.csv", stringsAsFactors = T)
+str(coffee_fac_lev)
+summary(coffee_fac_lev)
 ```
+
+as (function) shows, there is extremely huge amount of redundant attribute such as .... , ...., that 
+
+-- maybe this is where we use the validate package
+
+- having a look at the str and the summary as well as the validate package shows that there is a lot of missing instances,....., ...., there we will keep bla bla to help us in invesitgation our research question better without having redundant info affecting our results.
+- gives examples of why it is not good have to many missing NAs and outliers.....
+
 ```{r}
 sapply(coffee, table)
 sapply(head(table(coffee$ID), 20))
@@ -88,9 +102,6 @@ sum(coffee$Processing.Method=="")
 View(table(coffee$Processing.Method))
 ```
 
-as (function) shows, there is extremely huge amount of redundant attribute such as .... , ...., that 
-
--- maybe this is where we use the validate package
 
 
 As a results, in order to answer our research, we would only need the following variables....
@@ -116,7 +127,7 @@ As a results, in order to answer our research, we would only need the following 
 ```{r}
 colnames(coffee)
 coffee %>%
-  select(-c("ID", "Owner", "Farm.Name", "Lot.Number", ""))
+  select(-c("ID", "Owner", "Farm.Name", "Lot.Number", "Mill", ""))
 
 # football_num <- football %>%
 #   select(-c("sofifa_id", "club_name", "preferred_foot"))
@@ -126,12 +137,20 @@ coffee %>%
 
 ```
 
+```{r}
+
+```
+
+
+
+
 - look out for duplicates
 - look out for outliers
 - look out for missing data <- imputation
 - visualize and show the improvements made
 
 # 4. Exploratory Data Analysis
+
 
 
 
