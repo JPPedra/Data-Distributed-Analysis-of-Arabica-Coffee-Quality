@@ -79,31 +79,6 @@ as (function) shows, there is extremely huge amount of redundant attribute such 
 - having a look at the str and the summary as well as the validate package shows that there is a lot of missing instances,....., ...., there we will keep bla bla to help us in invesitgation our research question better without having redundant info affecting our results.
 - gives examples of why it is not good have to many missing NAs and outliers.....
 
-```{r}
-sapply(coffee, table)
-sapply(head(table(coffee$ID), 20))
-
-head(sapply(coffee, table), 20)
-
-coffee_1<- coffee
-coffee_1<- as.integer(coffee_1$Altitude)
-is.na(coffee_1$Altitude)
-
-any(is.na(coffee_1))
-
-coffee_1[which(coffee_1 == " "), c(10)]
-
-sum(!complete.cases(coffee$Altitude))
-
-sum(coffee$Altitude=="")
-sum(coffee$Country.of.Origin=="")
-View(table(coffee$Country.of.Origin))
-sum(coffee$Processing.Method=="")
-View(table(coffee$Processing.Method))
-```
-
-
-
 As a results, in order to answer our research, we would only need the following variables....
 
 à	ID
@@ -125,22 +100,111 @@ As a results, in order to answer our research, we would only need the following 
 à	Unit of measurements
 
 ```{r}
-colnames(coffee)
-coffee %>%
-  select(-c("ID", "Owner", "Farm.Name", "Lot.Number", "Mill", ""))
-
-# football_num <- football %>%
-#   select(-c("sofifa_id", "club_name", "preferred_foot"))
+#----
+# colnames(coffee)
+# coffee %>%
+#   select(-c("Owner", "Farm.Name", "Lot.Number", "Mill", "ICO.Number", "Company","Region","Producer","In.Country.Partner","Harvest.Year","Owner.1","Variety", "Expiration", "Certification.Body","Certification.Address","Certification.Contact","unit_of_measurement"))
 # 
-# coffee_new <- coffee[ ,c(1, 2, 4, 10, 13, 14, 17, 19:32, 34, 42:44)]
+# colnames(coffee1)
+# 
+# # football_num <- football %>%
+# #   select(-c("sofifa_id", "club_name", "preferred_foot"))
+# # 
+# # coffee_new <- coffee[ ,c(1, 2, 4, 10, 13, 14, 17, 19:32, 34, 42:44)]
+# -----
+
+colnames(coffee)
+coffee_new <- coffee %>%
+  select(-c("Owner", "Farm.Name", "Lot.Number", "Mill", "ICO.Number", "Company","Region","Producer","In.Country.Partner","Harvest.Year","Owner.1","Variety", "Expiration", "Certification.Body","Certification.Address","Certification.Contact","unit_of_measurement"))
+
+colnames(coffee_new)
+str(coffee_new)
+```
 
 
+```{r}
+coffee.rules <- validator(okID = ID>=0, 
+                          SpeciesCorrect = is.element(Species,c("Arabica")), 
+                          NoNegAltitude = Altitude>0, 
+                          NoExtremeAltitude = Altitude< 200000, 
+                          NonNegBags = Number.of.Bags>0, 
+                          NonNegWeight = Bag.Weight>0, 
+                          CorrectMethod = is.element(Processing.Method,
+                                                     c("Washed / Wet", "Natural/ Dry", "Pulped natural / honey", "Semi-washed / Semi-pulped", "Other")), 
+                          NoNegAroma = Aroma>0, 
+                          NoNegFlavor = Flavor>0, 
+                          NoNegAftertaste = Aftertaste>0, 
+                          NoNegAcidity = Acidity>0, 
+                          NoNegBody = Body>0, 
+                          NoNegBalance = Balance>0,  
+                          NoNegUniformity = Uniformity>0, 
+                          NoExtUniformity = Uniformity<=10,  
+                          NoNegCup = Clean.Cup>0, 
+                          NoExtClean.Cup  = Clean.Cup <=10,  
+                          NoNegSweetness = Sweetness>0, 
+                          NoExtSweetness = Sweetness<=10, 
+                          NoNegPoints = Cupper.Points>0, 
+                          NoExtPoints = Cupper.Points<=10, 
+                          NoNegTotalPoints = Total.Cup.Points>0, 
+                          NoExtTotalPoints = Total.Cup.Points<=100, 
+                          NoNegMoisture = Moisture>0, 
+                          NoNegQuakers = Quakers>=0, 
+                          NoExtQuakers = Quakers <=3,
+                          ColorCorrect = is.element(Color,
+                                                    c("Green", "None" , "Bluish-Green", "Blue-Green")),
+                          NoMinaltitute = altitude_low_meters>=1,
+                          NoextAltitute = altitude_low_meters <= 190164,
+                          NoMinaltitute = altitude_high_meters>=1,
+                          NoextAltitute = altitude_high_meters <= 190164,
+                          NoMinaltitute = altitude_mean_meters>=1,
+                          NoextAltitute = altitude_mean_meters <= 190164
+) 
+
+out   <- confront(coffee_new, coffee.rules)
+out_1 <- confront(coffee, coffee.rules)
+summary(out)
+plot(out)
+```
+
+investigating further to identify the errors and see from there what is the appropriate approach
+```{r}
+colnames(coffee_new)
+str(coffee_new)
+
+table(coffee_new$ID)
+table(coffee_new$Species)
+table(coffee_new$Country.of.Origin)
+table(coffee_new$Altitude)
+table(coffee_new$Number.of.Bags)
+table(coffee_new$Bag.Weight)
+table(coffee_new$Grading.Date)
+table(coffee_new$Processing.Method)
+table(coffee_new$Aroma)
+table(coffee_new$Flavor)
+table(coffee_new$Aftertaste)
+table(coffee_new$Acidity)
+table(coffee_new$Body)
+table(coffee_new$Balance)
+table(coffee_new$Uniformity)
+table(coffee_new$Clean.Cup)
+table(coffee_new$Sweetness)
+table(coffee_new$Cupper.Points)
+table(coffee_new$Total.Cup.Points)
+table(coffee_new$Moisture)
+table(coffee_new$Category.One.Defects)
+table(coffee_new$Quakers)
+table(coffee_new$Color)
+table(coffee_new$Category.Two.Defects)
+table(coffee_new$altitude_low_meters)
+table(coffee_new$altitude_high_meters)
+table(coffee_new$altitude_mean_meters)
 ```
 
 ```{r}
-
+boxplot(as.double(coffee_new$Aroma))
+aroma_bp <- boxplot(as.double(coffee_new$Aroma))
+aroma_bp$out
 ```
-
 
 
 
@@ -148,6 +212,35 @@ coffee %>%
 - look out for outliers
 - look out for missing data <- imputation
 - visualize and show the improvements made
+
+
+
+
+
+Extra Experiment
+```{r}
+# experimenting with each target variable to have
+sapply(coffee, table)
+sapply(head(table(coffee$ID), 20))
+
+head(sapply(coffee, table), 20)
+
+coffee_1<- coffee
+coffee_1<- as.integer(coffee_1$Altitude)
+is.na(coffee_1$Altitude)
+
+any(is.na(coffee_1))
+
+coffee_1[which(coffee_1 == " "), c(10)]
+
+sum(!complete.cases(coffee$Altitude))
+
+sum(coffee$Altitude=="")
+sum(coffee$Country.of.Origin=="")
+View(table(coffee$Country.of.Origin))
+sum(coffee$Processing.Method=="")
+View(table(coffee$Processing.Method))
+```
 
 # 4. Exploratory Data Analysis
 
