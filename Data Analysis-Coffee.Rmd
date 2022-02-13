@@ -6,7 +6,7 @@ output: html_document
 ---
 
 # 1. Introduction
-In this R Markdown report is the data analysis of the dataset on Arabica coffee beans that was extracted from the Coffee Quality Institute. The aim of this report is to perform a supervised machine learning and a high performance computational technique to answer the following research question: ......
+This R Markdown report is a data analysis of the dataset on Arabica coffee beans that was extracted from the Coffee Quality Institute. The aim of this report is to perform a supervised machine learning and a high performance computational technique to answer the following research question: ......
 In order to achieve this, the first stage is to preform data cleaning and preparation in order to optimise the dataset and to ensure the quality of the dataset is accurate, consistent, and reliable. "Measuring and checking the quality of the data identifies potential errors, that should be resolved appropriately, to prevent misleading results and conclusions" 
 Exploratory Data Analysis (EDA) will then be preformed in order to .....
 ---- 
@@ -42,6 +42,7 @@ Region
 
 ```{r}
 library(dplyr)
+library(validate)
 ```
 
 # 3. Data Cleaning and Preparation
@@ -58,7 +59,7 @@ coffee <- read.csv("data/Coffee-modified.csv")
 #str(coffee)
 summary(coffee)
 ```
-From the summary function, it seems that confirm that 35 attributes that are maybe categorical and the rest of the 9 attributes seems to be numerical continuous. Additionally, we can already identify errors such as missing data and possible outliers....
+From the summary function, it seems that we have 35 attributes that are maybe categorical and the rest of the 9 attributes seems to be numerical continuous. Additionally, we can already identify errors such as missing data and possible outliers....
 
 Let's further investigate this and see if R interpreted these data types correctly
 ```{r}
@@ -69,6 +70,22 @@ sapply(coffee, table)
 sapply(head(table(coffee$ID), 20))
 
 head(sapply(coffee, table), 20)
+
+coffee_1<- coffee
+coffee_1<- as.integer(coffee_1$Altitude)
+is.na(coffee_1$Altitude)
+
+any(is.na(coffee_1))
+
+coffee_1[which(coffee_1 == " "), c(10)]
+
+sum(!complete.cases(coffee$Altitude))
+
+sum(coffee$Altitude=="")
+sum(coffee$Country.of.Origin=="")
+View(table(coffee$Country.of.Origin))
+sum(coffee$Processing.Method=="")
+View(table(coffee$Processing.Method))
 ```
 
 as (function) shows, there is extremely huge amount of redundant attribute such as .... , ...., that 
@@ -77,15 +94,36 @@ as (function) shows, there is extremely huge amount of redundant attribute such 
 
 
 As a results, in order to answer our research, we would only need the following variables....
+
+à	ID
+à	Owner
+à	Farm Name
+à	Lot Number
+à	Mill 
+à	ICO Number
+à	Company
+à	Region
+à	Producer
+à	In country Partner
+à	Harvest Year
+à	Owner 1
+à	Expiration
+à	Certification Body
+à	certification address 
+à	Certification number
+à	Unit of measurements
+
 ```{r}
 colnames(coffee)
 coffee %>%
-  select(-c(1, 3, 5:8))
+  select(-c("ID", "Owner", "Farm.Name", "Lot.Number", ""))
 
 # football_num <- football %>%
 #   select(-c("sofifa_id", "club_name", "preferred_foot"))
 # 
 # coffee_new <- coffee[ ,c(1, 2, 4, 10, 13, 14, 17, 19:32, 34, 42:44)]
+
+
 ```
 
 - look out for duplicates
