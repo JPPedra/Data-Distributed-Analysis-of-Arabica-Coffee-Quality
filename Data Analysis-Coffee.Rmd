@@ -3,6 +3,8 @@ title: "CS5811-Data Distributed Analysis-Data Analysis on Arabica Coffee Beans"
 author: "Hawra Nawrozzadeh, Joao Pedro Azevedo, and Roberta Sammarco"
 date: "10/02/2022"
 output: html_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 # 1. Introduction
@@ -42,6 +44,7 @@ Region
 
 ```{r}
 library(dplyr)
+library(tidyverse)
 library(validate)
 ```
 
@@ -59,7 +62,7 @@ coffee <- read.csv("data/Coffee-modified.csv")
 str(coffee)
 summary(coffee)
 ```
--From the summary and str .... function, it seems R has processed the dataset with  35 attributes categorical variables and the rest of the 9 attributes to be numerical continuous.
+-From the `summary()` and `str()` .... function, it seems R has processed the dataset with  35 attributes categorical variables and the rest of the 9 attributes to be numerical continuous.
 - However, this seems to be incorrect format because the in correct datatype..... e.g. ID and bla bla should be integer instead ...
 - Additionally, we can already identify errors such as missing data and possible outliers (from looking at the ranges)...
 
@@ -81,6 +84,7 @@ as (function) shows, there is extremely huge amount of redundant attribute such 
 
 As a results, in order to answer our research, we would only need the following variables....
 
+----
 à	ID
 à	Owner
 à	Farm Name
@@ -99,6 +103,8 @@ As a results, in order to answer our research, we would only need the following 
 à	Certification number
 à	Unit of measurements
 
+----
+
 ```{r}
 #----
 # colnames(coffee)
@@ -114,11 +120,26 @@ As a results, in order to answer our research, we would only need the following 
 # -----
 
 colnames(coffee)
-coffee_new <- coffee %>%
-  select(-c("Owner", "Farm.Name", "Lot.Number", "Mill", "ICO.Number", "Company","Region","Producer","In.Country.Partner","Harvest.Year","Owner.1","Variety", "Expiration", "Certification.Body","Certification.Address","Certification.Contact","unit_of_measurement"))
+# coffee_new <- coffee %>%
+#   select(-c("Owner", "Farm.Name", "Lot.Number", "Mill", "ICO.Number", "Company","Region","Producer","In.Country.Partner","Harvest.Year","Owner.1","Variety", "Expiration", "Certification.Body","Certification.Address","Certification.Contact","unit_of_measurement"))
 
 colnames(coffee_new)
 str(coffee_new)
+
+## should get rid of (processing methods), color, and species as these are associated with the bean metadata and not the part of the quality of the coffee, plus they have alot of missing rows
+
+coffee_new <- coffee %>%
+  select(-c( ## removing data regarding the Farm 
+            "Owner", "Farm.Name", "Lot.Number", "Mill", "ICO.Number",
+            "Company","Region","Producer","In.Country.Partner","Harvest.Year","Owner.1","Variety", "Expiration",
+            "Certification.Body","Certification.Address","Certification.Contact","unit_of_measurement",
+            ## removing data regard the bean
+            "Color", "Species", "Altitude", "altitude_low_meters", "altitude_high_meters", "altitude_mean_meters"
+            )
+         )
+colnames(coffee_new)
+str(coffee_new)
+summary(coffee_new)
 ```
 
 
@@ -172,6 +193,7 @@ colnames(coffee_new)
 str(coffee_new)
 
 table(coffee_new$ID)
+#which(duplicated(coffee_new$ID))
 table(coffee_new$Species)
 table(coffee_new$Country.of.Origin)
 table(coffee_new$Altitude)
@@ -200,12 +222,124 @@ table(coffee_new$altitude_high_meters)
 table(coffee_new$altitude_mean_meters)
 ```
 
+- Assessing Empty Rows
+```{r}
+summary(coffee_new)
+colSums(is.na(coffee_new))
+
+
+
+View(table(coffee_new$Country.of.Origin))
+#football_df$wage_eur[football_df$wage_eur == 6.0001]
+coffee_new[which(coffee_new$Country.of.Origin == ""),  ]
+
+
+
+colSums(coffee_new == "")
+empty_rows <- which(coffee_new =="", arr.ind=TRUE)
+View(unique(empty_rows))
+empty_rows <- as.data.frame(empty_rows)
+which(duplicated(empty_rows$row))
+order(unique(empty_rows$row))
+View(unique(empty_rows))
+empty_rows
+
+coffee_new[which(coffee_new == ""), c("Country.of.Origin")]
+
+b <- coffee_new[Reduce(`&`, lapply(coffee_new, function(x) !(x==""))),]
+summary(b)
+colSums(b == "")
+colSums(is.na(b))
+#coffee_new[!apply(coffee_new == "", 1, all),]
+# a <- coffee_new[-which(coffee_new == ""), ]
+# 
+#a <- coffee_new[!apply(coffee_new == "", 1, all),]
+# 
+# allmisscols <- sapply(coffee_new, function(x) all(is.na(x) | x == '' ))
+# 
+# empty_columns <- colSums(coffee_new == "") == nrow(coffee_new)
+# a<- coffee_new[ , !empty_columns] 
+# 
+# 
+# c <- coffee_new[rowSums(coffee_new=="")!=ncol(coffee_new), ]
+table(b$Country.of.Origin)
+```
+
+
+```{r}
+subset(coffee_new, Country.of.Origin == "")
+
+which(is.null(coffee_new))
+coffee_new[which(coffee_new == ""), ]
+
+football[which(football == " "), c(1:17)] 
+
+
+# coffee_new_1 <- coffee_new[!apply(coffee_new == "", 1, all),]
+# coffee_new_1
+```
+
+
 ```{r}
 boxplot(as.double(coffee_new$Aroma))
 aroma_bp <- boxplot(as.double(coffee_new$Aroma))
 aroma_bp$out
 ```
 
+```{r}
+colnames(coffee_new)
+str(coffee_new)
+
+#bp_id <- boxplot(as.integer(coffee_new$ID), plot = F)
+#as.integer(coffee_new$Altitude)  # altitude as integer introduces alot of NA as there where alot data points with different unit measures
+
+# which(is.na(as.integer(coffee_new$Number.of.Bags)))
+# boxplot(as.integer(coffee_new$Number.of.Bags))
+bp_NoOfBag <- boxplot(as.integer(coffee_new$Number.of.Bags), plot = F)
+bp_BagWeight <- boxplot(as.integer(coffee_new$Bag.Weight), plot = F)
+#which(is.na(as.numeric(coffee_new$Aroma)))
+bp_Aroma <- boxplot(as.numeric(coffee_new$Aroma), plot = F)
+bp_Flavor <- boxplot(as.numeric(coffee_new$Flavor), plot = F)
+bp_Aftertaste <- boxplot(as.numeric(coffee_new$Aftertaste), plot = F)
+bp_Acidity <- boxplot(as.numeric(coffee_new$Acidity), plot = F)
+bp_Body <- boxplot(as.numeric(coffee_new$Body), plot = F)
+bp_Balance <- boxplot(as.numeric(coffee_new$Balance), plot = F)
+bp_Uniformity <- boxplot(as.numeric(coffee_new$Uniformity), plot = F)
+bp_CleanCup <- boxplot(as.numeric(coffee_new$Clean.Cup), plot = F)
+bp_Sweetness <- boxplot(as.numeric(coffee_new$Sweetness), plot = F)
+bp_Aftertaste <- boxplot(as.numeric(coffee_new$Aftertaste), plot = F)
+bp_CupperPoint <- boxplot(as.numeric(coffee_new$Cupper.Points), plot = F)
+bp_Moisture <- boxplot(as.numeric(coffee_new$Moisture), plot = F)
+
+coffee_filter <- 
+  coffee_new$Number.of.Bags < min(bp_NoOfBag$out) &
+  coffee_new$Bag.Weight < min(bp_BagWeight$out) &
+  coffee_new$Aroma < min(bp_Aroma$out) &
+  coffee_new$Flavor < min(bp_Flavor$out) &
+  coffee_new$Aftertaste < min(bp_Aftertaste$out) &
+  coffee_new$Acidity < min(bp_Acidity$out) &
+  coffee_new$Body < min(bp_Body$out) &
+  coffee_new$Balance < min(bp_Balance$out) &
+  coffee_new$Uniformity < min(bp_Uniformity$out) &
+  coffee_new$Clean.Cup < min(bp_CleanCup$out) &
+  coffee_new$Sweetness < min(bp_Sweetness$out) &
+  coffee_new$Aftertaste < min(bp_Aftertaste$out) &
+  coffee_new$Cupper.Points < min(bp_CupperPoint$out) &
+  coffee_new$Moisture < min(bp_Moisture$out)
+
+coffee_new_clean <- coffee_new[coffee_filter, ]
+
+
+
+# then make a filter condition to make sure that all the points for all three atrribute are less then outliers (min of the outliers)
+spending_filter <- 
+  customers$Fresh < min(bp_Fresh$out) & 
+  customers$Milk < min(bp_Milk$out) & 
+  customers$Grocery < min(bp_Groceries$out)
+
+# Apply the condition to the new object of the same dataset
+customers_clean <- customers[spending_filter,]
+```
 
 
 - look out for duplicates
