@@ -134,7 +134,7 @@ coffee_new <- coffee %>%
             "Company","Region","Producer","In.Country.Partner","Harvest.Year","Owner.1","Variety", "Expiration",
             "Certification.Body","Certification.Address","Certification.Contact","unit_of_measurement",
             ## removing data regard the bean
-            "Color", "Species", "Altitude", "altitude_low_meters", "altitude_high_meters", "altitude_mean_meters"
+            "Color", "Species", "Altitude", "altitude_low_meters", "altitude_high_meters", "altitude_mean_meters", "ID", "Grading.Date"
             )
          )
 colnames(coffee_new)
