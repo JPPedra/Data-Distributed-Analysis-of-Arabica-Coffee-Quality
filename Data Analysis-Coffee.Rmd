@@ -48,14 +48,10 @@ str(coffee_fac_lev)
 summary(coffee_fac_lev)
 ```
 
-as (function) shows, there is extremely huge amount of redundant attribute such as .... , ...., that 
-
--- maybe this is where we use the validate package
-
-- having a look at the str and the summary as well as the validate package shows that there is a lot of missing instances,....., ...., there we will keep bla bla to help us in invesitgation our research question better without having redundant info affecting our results.
-- gives examples of why it is not good have to many missing NAs and outliers.....
-
-As a results, in order to answer our research, we would only need the following variables....
+- There is alot of errors and redudant information
+- can see the amount of missings informations, etc. 
+(maybe this is where we use the validate package?)
+- As a results, in order to answer our research, we would only need the following variables....
 
 ----
 à	ID
