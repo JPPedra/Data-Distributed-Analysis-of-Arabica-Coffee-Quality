@@ -13,13 +13,15 @@ editor_options:
 - This will include the data cleaning and preparation, and the exploratory data analysis (EDA), which is performed and carried together as a group.
 - Then each of the member of the group, will perform different Machine learning (ML) High Performance Computational and Infrastructure (HPCI) in order to see which techniques best answered our research question: ***"Given the quality measures of the Arabica coffee beans, can we predict where these coffees are originated from?"***
 
-
 # 2. Loading the Libraries
 
 ```{r}
+# For data cleaning and preparation
 library(dplyr)
 library(tidyverse)
 library(validate)
+# For Data visualisation
+
 ```
 
 # 3. Data Cleaning and Preparation
@@ -30,15 +32,25 @@ library(validate)
 coffee <- read.csv("data/Coffee-modified.csv")
 ```
 
+
 ## 3.2 Data Qaulity Check (or something like this)
 
+Let's look into the structure of the data set
 ```{r}
 str(coffee)
 summary(coffee)
 ```
 
+-From the `summary()` and `str()` function, it seems R has processed the dataset with  35 attributes categorical variables and the rest of the 9 attributes to be numerical continuous.
+- However, this seems to be incorrect format because the in correct datatype..... e.g. ID and bla bla should be integer instead ...
+- Additionally, we can already identify errors such as missing data and possible outliers (from looking at the ranges)...
+
+- Lets further look into the different levels by creating an object that converts the strings into a factor. By doing this, we can also see other details that we will help us to decide which attributes are redundant or irrelavent for our research question.
+
+- The `summary()` and `str()` function shows that the dataset contains
+
 - 35 categorical/character variables
-- 9 continous variables
+- 9 continuous variables
 - incorrect data types
 - cant get much from `summary()` function--> use `stringAsFactor = T` to get some more insight 
 
@@ -46,6 +58,51 @@ summary(coffee)
 coffee_fac_lev <- read.csv("data/Coffee-modified.csv", stringsAsFactors = T)
 str(coffee_fac_lev)
 summary(coffee_fac_lev)
+```
+
+validate 
+```{r}
+coffee.rules <- validator(okID = ID>=0, 
+                          SpeciesCorrect = is.element(Species,c("Arabica")), 
+                          NoNegAltitude = Altitude>0, 
+                          NoExtremeAltitude = Altitude< 200000, 
+                          NonNegBags = Number.of.Bags>0, 
+                          NonNegWeight = Bag.Weight>0, 
+                          CorrectMethod = is.element(Processing.Method,
+                                                     c("Washed / Wet", "Natural/ Dry", "Pulped natural / honey", "Semi-washed / Semi-pulped", "Other")), 
+                          NoNegAroma = Aroma>0, 
+                          NoNegFlavor = Flavor>0, 
+                          NoNegAftertaste = Aftertaste>0, 
+                          NoNegAcidity = Acidity>0, 
+                          NoNegBody = Body>0, 
+                          NoNegBalance = Balance>0,  
+                          NoNegUniformity = Uniformity>0, 
+                          NoExtUniformity = Uniformity<=10,  
+                          NoNegCup = Clean.Cup>0, 
+                          NoExtClean.Cup  = Clean.Cup <=10,  
+                          NoNegSweetness = Sweetness>0, 
+                          NoExtSweetness = Sweetness<=10, 
+                          NoNegPoints = Cupper.Points>0, 
+                          NoExtPoints = Cupper.Points<=10, 
+                          NoNegTotalPoints = Total.Cup.Points>0, 
+                          NoExtTotalPoints = Total.Cup.Points<=100, 
+                          NoNegMoisture = Moisture>0, 
+                          NoNegQuakers = Quakers>=0, 
+                          NoExtQuakers = Quakers <=3,
+                          ColorCorrect = is.element(Color,
+                                                    c("Green", "None" , "Bluish-Green", "Blue-Green")),
+                          NoMinaltitute = altitude_low_meters>=1,
+                          NoextAltitute = altitude_low_meters <= 190164,
+                          NoMinaltitute = altitude_high_meters>=1,
+                          NoextAltitute = altitude_high_meters <= 190164,
+                          NoMinaltitute = altitude_mean_meters>=1,
+                          NoextAltitute = altitude_mean_meters <= 190164
+) 
+
+out   <- confront(coffee_new, coffee.rules)
+out_1 <- confront(coffee, coffee.rules)
+summary(out)
+plot(out)
 ```
 
 - There is alot of errors and redudant information
@@ -111,87 +168,17 @@ str(coffee_new)
 summary(coffee_new)
 ```
 
-
-```{r}
-coffee.rules <- validator(okID = ID>=0, 
-                          SpeciesCorrect = is.element(Species,c("Arabica")), 
-                          NoNegAltitude = Altitude>0, 
-                          NoExtremeAltitude = Altitude< 200000, 
-                          NonNegBags = Number.of.Bags>0, 
-                          NonNegWeight = Bag.Weight>0, 
-                          CorrectMethod = is.element(Processing.Method,
-                                                     c("Washed / Wet", "Natural/ Dry", "Pulped natural / honey", "Semi-washed / Semi-pulped", "Other")), 
-                          NoNegAroma = Aroma>0, 
-                          NoNegFlavor = Flavor>0, 
-                          NoNegAftertaste = Aftertaste>0, 
-                          NoNegAcidity = Acidity>0, 
-                          NoNegBody = Body>0, 
-                          NoNegBalance = Balance>0,  
-                          NoNegUniformity = Uniformity>0, 
-                          NoExtUniformity = Uniformity<=10,  
-                          NoNegCup = Clean.Cup>0, 
-                          NoExtClean.Cup  = Clean.Cup <=10,  
-                          NoNegSweetness = Sweetness>0, 
-                          NoExtSweetness = Sweetness<=10, 
-                          NoNegPoints = Cupper.Points>0, 
-                          NoExtPoints = Cupper.Points<=10, 
-                          NoNegTotalPoints = Total.Cup.Points>0, 
-                          NoExtTotalPoints = Total.Cup.Points<=100, 
-                          NoNegMoisture = Moisture>0, 
-                          NoNegQuakers = Quakers>=0, 
-                          NoExtQuakers = Quakers <=3,
-                          ColorCorrect = is.element(Color,
-                                                    c("Green", "None" , "Bluish-Green", "Blue-Green")),
-                          NoMinaltitute = altitude_low_meters>=1,
-                          NoextAltitute = altitude_low_meters <= 190164,
-                          NoMinaltitute = altitude_high_meters>=1,
-                          NoextAltitute = altitude_high_meters <= 190164,
-                          NoMinaltitute = altitude_mean_meters>=1,
-                          NoextAltitute = altitude_mean_meters <= 190164
-) 
-
-out   <- confront(coffee_new, coffee.rules)
-out_1 <- confront(coffee, coffee.rules)
-summary(out)
-plot(out)
-```
-
-investigating further to identify the errors and see from there what is the appropriate approach
-```{r}
-colnames(coffee_new)
-str(coffee_new)
-
-table(coffee_new$ID)
-#which(duplicated(coffee_new$ID))
-table(coffee_new$Species)
-table(coffee_new$Country.of.Origin)
-table(coffee_new$Altitude)
-table(coffee_new$Number.of.Bags)
-table(coffee_new$Bag.Weight)
-table(coffee_new$Grading.Date)
-table(coffee_new$Processing.Method)
-table(coffee_new$Aroma)
-table(coffee_new$Flavor)
-table(coffee_new$Aftertaste)
-table(coffee_new$Acidity)
-table(coffee_new$Body)
-table(coffee_new$Balance)
-table(coffee_new$Uniformity)
-table(coffee_new$Clean.Cup)
-table(coffee_new$Sweetness)
-table(coffee_new$Cupper.Points)
-table(coffee_new$Total.Cup.Points)
-table(coffee_new$Moisture)
-table(coffee_new$Category.One.Defects)
-table(coffee_new$Quakers)
-table(coffee_new$Color)
-table(coffee_new$Category.Two.Defects)
-table(coffee_new$altitude_low_meters)
-table(coffee_new$altitude_high_meters)
-table(coffee_new$altitude_mean_meters)
-```
-
 - Assessing Empty Rows
+```{r}
+summary(coffee_new)
+colSums(is.na(coffee_new))
+colSums(coffee_new == "")
+
+coffee_new_1 <- coffee_new[Reduce(`&`, lapply(coffee_new, 
+                                              function(x) !(x==""))),]
+```
+
+- Assessing Empty Rows (experimenting)
 ```{r}
 summary(coffee_new)
 colSums(is.na(coffee_new))
@@ -234,7 +221,6 @@ colSums(is.na(b))
 table(b$Country.of.Origin)
 ```
 
-
 ```{r}
 subset(coffee_new, Country.of.Origin == "")
 
@@ -248,7 +234,42 @@ football[which(football == " "), c(1:17)]
 # coffee_new_1
 ```
 
+Investigating further to identify the errors and see from there what is the appropriate approach
+```{r}
+colnames(coffee_new)
+str(coffee_new)
 
+table(coffee_new$ID)
+#which(duplicated(coffee_new$ID))
+table(coffee_new$Species)
+table(coffee_new$Country.of.Origin)
+table(coffee_new$Altitude)
+table(coffee_new$Number.of.Bags)
+table(coffee_new$Bag.Weight)
+table(coffee_new$Grading.Date)
+table(coffee_new$Processing.Method)
+table(coffee_new$Aroma)
+table(coffee_new$Flavor)
+table(coffee_new$Aftertaste)
+table(coffee_new$Acidity)
+table(coffee_new$Body)
+table(coffee_new$Balance)
+table(coffee_new$Uniformity)
+table(coffee_new$Clean.Cup)
+table(coffee_new$Sweetness)
+table(coffee_new$Cupper.Points)
+table(coffee_new$Total.Cup.Points)
+table(coffee_new$Moisture)
+table(coffee_new$Category.One.Defects)
+table(coffee_new$Quakers)
+table(coffee_new$Color)
+table(coffee_new$Category.Two.Defects)
+table(coffee_new$altitude_low_meters)
+table(coffee_new$altitude_high_meters)
+table(coffee_new$altitude_mean_meters)
+```
+
+- Template to remove outliers 
 ```{r}
 boxplot(as.double(coffee_new$Aroma))
 aroma_bp <- boxplot(as.double(coffee_new$Aroma))
@@ -315,10 +336,6 @@ customers_clean <- customers[spending_filter,]
 - look out for outliers
 - look out for missing data <- imputation
 - visualize and show the improvements made
-
-
-
-
 
 Extra Experiment
 ```{r}
