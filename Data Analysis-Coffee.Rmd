@@ -8,36 +8,10 @@ editor_options:
 ---
 
 # 1. Introduction
-This R Markdown report is a data analysis of the dataset on Arabica coffee beans that was extracted from the Coffee Quality Institute. The aim of this report is to perform a supervised machine learning and a high performance computational technique to answer the following research question: ......
-In order to achieve this, the first stage is to preform data cleaning and preparation in order to optimise the dataset and to ensure the quality of the dataset is accurate, consistent, and reliable. "Measuring and checking the quality of the data identifies potential errors, that should be resolved appropriately, to prevent misleading results and conclusions" 
-Exploratory Data Analysis (EDA) will then be preformed in order to .....
----- 
-The metadata
-Quality Measures
-Aroma
-Flavor
-Aftertaste
-Acidity
-Body
-Balance
-Uniformity
-Cup Cleanliness
-Sweetness
-Moisture
-Defects
-Bean Metadata
-Processing Method
-Color
-Species (arabica / robusta)
-Farm Metadata
-Owner
-Country of Origin
-Farm Name
-Lot Number
-Mill
-Company
-Altitude
-Region
+
+- This RMarkdown file will contain the data analysis on the Arabica Coffee Beans. 
+- This will include the data cleaning and preparation, and the exploratory data analysis (EDA), which is performed and carried together as a group.
+- Then each of the member of the group, will perform different Machine learning (ML) High Performance Computational and Infrastructure (HPCI) in order to see which techniques best answered our research question: ***"Given the quality measures of the Arabica coffee beans, can we predict where these coffees are originated from?"***
 
 
 # 2. Loading the Libraries
@@ -62,13 +36,12 @@ coffee <- read.csv("data/Coffee-modified.csv")
 str(coffee)
 summary(coffee)
 ```
--From the `summary()` and `str()` .... function, it seems R has processed the dataset with  35 attributes categorical variables and the rest of the 9 attributes to be numerical continuous.
-- However, this seems to be incorrect format because the in correct datatype..... e.g. ID and bla bla should be integer instead ...
-- Additionally, we can already identify errors such as missing data and possible outliers (from looking at the ranges)...
 
-- Lets further look into the different levels by creating an object that converts the strings into a factor. By doing this, we can also see other details that we will help us to decide which attributes are redundant or irrelavent for our research question.
+- 35 categorical/character variables
+- 9 continous variables
+- incorrect data types
+- cant get much from `summary()` function--> use `stringAsFactor = T` to get some more insight 
 
-Let's further investigate this and see if R interpreted these data types correctly
 ```{r}
 coffee_fac_lev <- read.csv("data/Coffee-modified.csv", stringsAsFactors = T)
 str(coffee_fac_lev)
