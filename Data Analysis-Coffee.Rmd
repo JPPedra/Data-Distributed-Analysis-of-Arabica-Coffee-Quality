@@ -9,9 +9,9 @@ editor_options:
 
 # 1. Introduction
 
-- This RMarkdown file will contain the data analysis on the Arabica Coffee Beans. 
-- This will include the data cleaning and preparation, and the exploratory data analysis (EDA), which is performed and carried together as a group.
-- Then each of the member of the group, will perform different Machine learning (ML) High Performance Computational and Infrastructure (HPCI) in order to see which techniques best answered our research question: ***"Given the quality measures of the Arabica coffee beans, can we predict where these coffees are originated from?"***
+- data is on Arabic coffee
+- show metadata
+- Research Question: ***"Given the quality measures of the Arabica coffee beans, can we predict where these coffees are originated from?"***
 
 # 2. Loading the Libraries
 
@@ -128,6 +128,7 @@ plot(out)
 à	certification address 
 à	Certification number
 à	Unit of measurements
+^^ this is needs to be fixed accordingly
 
 ----
 
@@ -176,191 +177,73 @@ colSums(coffee_new == "")
 
 coffee_new_1 <- coffee_new[Reduce(`&`, lapply(coffee_new, 
                                               function(x) !(x==""))),]
-```
 
-- Assessing Empty Rows (experimenting)
-```{r}
-summary(coffee_new)
-colSums(is.na(coffee_new))
-
-
-
-View(table(coffee_new$Country.of.Origin))
-#football_df$wage_eur[football_df$wage_eur == 6.0001]
-coffee_new[which(coffee_new$Country.of.Origin == ""),  ]
-
-
-
-colSums(coffee_new == "")
-empty_rows <- which(coffee_new =="", arr.ind=TRUE)
-View(unique(empty_rows))
-empty_rows <- as.data.frame(empty_rows)
-which(duplicated(empty_rows$row))
-order(unique(empty_rows$row))
-View(unique(empty_rows))
-empty_rows
-
-coffee_new[which(coffee_new == ""), c("Country.of.Origin")]
-
-b <- coffee_new[Reduce(`&`, lapply(coffee_new, function(x) !(x==""))),]
-summary(b)
-colSums(b == "")
-colSums(is.na(b))
-#coffee_new[!apply(coffee_new == "", 1, all),]
-# a <- coffee_new[-which(coffee_new == ""), ]
-# 
-#a <- coffee_new[!apply(coffee_new == "", 1, all),]
-# 
-# allmisscols <- sapply(coffee_new, function(x) all(is.na(x) | x == '' ))
-# 
-# empty_columns <- colSums(coffee_new == "") == nrow(coffee_new)
-# a<- coffee_new[ , !empty_columns] 
-# 
-# 
-# c <- coffee_new[rowSums(coffee_new=="")!=ncol(coffee_new), ]
-table(b$Country.of.Origin)
-```
-
-```{r}
-subset(coffee_new, Country.of.Origin == "")
-
-which(is.null(coffee_new))
-coffee_new[which(coffee_new == ""), ]
-
-football[which(football == " "), c(1:17)] 
-
-
-# coffee_new_1 <- coffee_new[!apply(coffee_new == "", 1, all),]
-# coffee_new_1
+colSums(is.na(coffee_new_1))
+colSums(coffee_new_1 == "")
 ```
 
 Investigating further to identify the errors and see from there what is the appropriate approach
 ```{r}
-colnames(coffee_new)
-str(coffee_new)
-
-table(coffee_new$ID)
-#which(duplicated(coffee_new$ID))
-table(coffee_new$Species)
-table(coffee_new$Country.of.Origin)
-table(coffee_new$Altitude)
-table(coffee_new$Number.of.Bags)
-table(coffee_new$Bag.Weight)
-table(coffee_new$Grading.Date)
-table(coffee_new$Processing.Method)
-table(coffee_new$Aroma)
-table(coffee_new$Flavor)
-table(coffee_new$Aftertaste)
-table(coffee_new$Acidity)
-table(coffee_new$Body)
-table(coffee_new$Balance)
-table(coffee_new$Uniformity)
-table(coffee_new$Clean.Cup)
-table(coffee_new$Sweetness)
-table(coffee_new$Cupper.Points)
-table(coffee_new$Total.Cup.Points)
-table(coffee_new$Moisture)
-table(coffee_new$Category.One.Defects)
-table(coffee_new$Quakers)
-table(coffee_new$Color)
-table(coffee_new$Category.Two.Defects)
-table(coffee_new$altitude_low_meters)
-table(coffee_new$altitude_high_meters)
-table(coffee_new$altitude_mean_meters)
+table(coffee_new_1$Country.of.Origin)
+table(coffee_new_1$Number.of.Bags)
+table(coffee_new_1$Bag.Weight) ##
+table(coffee_new_1$Processing.Method)
+table(coffee_new_1$Aroma) ##
+table(coffee_new_1$Flavor) 
+table(coffee_new_1$Aftertaste) 
+table(coffee_new_1$Acidity) 
+table(coffee_new_1$Body)
+table(coffee_new_1$Balance)
+table(coffee_new_1$Uniformity) ##
+table(coffee_new_1$Clean.Cup) ##
+table(coffee_new_1$Sweetness) ##
+table(coffee_new_1$Cupper.Points) ##
+table(coffee_new_1$Total.Cup.Points) ##
+table(coffee_new_1$Moisture) 
+table(coffee_new_1$Category.One.Defects)
+table(coffee_new_1$Quakers) ##
+table(coffee_new_1$Category.Two.Defects)
 ```
 
-- Template to remove outliers 
+-dealing with Bag Weight first
+  - all string 
+  - Majority is kg put there are some in ilbs
+  - Created a function to fix this so that all the values are converted to numeric and all have the same unit
 ```{r}
-boxplot(as.double(coffee_new$Aroma))
-aroma_bp <- boxplot(as.double(coffee_new$Aroma))
-aroma_bp$out
-```
+exp <- coffee_new_1
+table(exp$Bag.Weight)
 
-```{r}
-colnames(coffee_new)
-str(coffee_new)
+exp$Bag.Weight <- exp$Bag.Weight %>% 
+  replace_na("9900 kg")
 
-#bp_id <- boxplot(as.integer(coffee_new$ID), plot = F)
-#as.integer(coffee_new$Altitude)  # altitude as integer introduces alot of NA as there where alot data points with different unit measures
+colSums(is.na(exp))
 
-# which(is.na(as.integer(coffee_new$Number.of.Bags)))
-# boxplot(as.integer(coffee_new$Number.of.Bags))
-bp_NoOfBag <- boxplot(as.integer(coffee_new$Number.of.Bags), plot = F)
-bp_BagWeight <- boxplot(as.integer(coffee_new$Bag.Weight), plot = F)
-#which(is.na(as.numeric(coffee_new$Aroma)))
-bp_Aroma <- boxplot(as.numeric(coffee_new$Aroma), plot = F)
-bp_Flavor <- boxplot(as.numeric(coffee_new$Flavor), plot = F)
-bp_Aftertaste <- boxplot(as.numeric(coffee_new$Aftertaste), plot = F)
-bp_Acidity <- boxplot(as.numeric(coffee_new$Acidity), plot = F)
-bp_Body <- boxplot(as.numeric(coffee_new$Body), plot = F)
-bp_Balance <- boxplot(as.numeric(coffee_new$Balance), plot = F)
-bp_Uniformity <- boxplot(as.numeric(coffee_new$Uniformity), plot = F)
-bp_CleanCup <- boxplot(as.numeric(coffee_new$Clean.Cup), plot = F)
-bp_Sweetness <- boxplot(as.numeric(coffee_new$Sweetness), plot = F)
-bp_Aftertaste <- boxplot(as.numeric(coffee_new$Aftertaste), plot = F)
-bp_CupperPoint <- boxplot(as.numeric(coffee_new$Cupper.Points), plot = F)
-bp_Moisture <- boxplot(as.numeric(coffee_new$Moisture), plot = F)
+conversion <- function(x){
+  # splitting the string; y is a list
+  y <- strsplit(x, " ")
+  
+  if (y[[1]][2] == "lbs") { #traversing the list within a list
+    x <- gsub(" lbs", "", x)
+    x <- 0.45 * as.numeric(x)
+  } else {
+    x <- gsub(" kg", "", x)
+    x <- as.numeric(x)
+  }
+}
 
-coffee_filter <- 
-  coffee_new$Number.of.Bags < min(bp_NoOfBag$out) &
-  coffee_new$Bag.Weight < min(bp_BagWeight$out) &
-  coffee_new$Aroma < min(bp_Aroma$out) &
-  coffee_new$Flavor < min(bp_Flavor$out) &
-  coffee_new$Aftertaste < min(bp_Aftertaste$out) &
-  coffee_new$Acidity < min(bp_Acidity$out) &
-  coffee_new$Body < min(bp_Body$out) &
-  coffee_new$Balance < min(bp_Balance$out) &
-  coffee_new$Uniformity < min(bp_Uniformity$out) &
-  coffee_new$Clean.Cup < min(bp_CleanCup$out) &
-  coffee_new$Sweetness < min(bp_Sweetness$out) &
-  coffee_new$Aftertaste < min(bp_Aftertaste$out) &
-  coffee_new$Cupper.Points < min(bp_CupperPoint$out) &
-  coffee_new$Moisture < min(bp_Moisture$out)
-
-coffee_new_clean <- coffee_new[coffee_filter, ]
-
-
-
-# then make a filter condition to make sure that all the points for all three atrribute are less then outliers (min of the outliers)
-spending_filter <- 
-  customers$Fresh < min(bp_Fresh$out) & 
-  customers$Milk < min(bp_Milk$out) & 
-  customers$Grocery < min(bp_Groceries$out)
-
-# Apply the condition to the new object of the same dataset
-customers_clean <- customers[spending_filter,]
+exp$Bag.Weight <- sapply(exp$Bag.Weight, FUN = conversion)
+table(coffee_new_1$Bag.Weight)
+table(exp$Bag.Weight)
+exp$Bag.Weight
 ```
 
 
-- look out for duplicates
+- look out for duplicates??
 - look out for outliers
 - look out for missing data <- imputation
 - visualize and show the improvements made
 
-Extra Experiment
-```{r}
-# experimenting with each target variable to have
-sapply(coffee, table)
-sapply(head(table(coffee$ID), 20))
-
-head(sapply(coffee, table), 20)
-
-coffee_1<- coffee
-coffee_1<- as.integer(coffee_1$Altitude)
-is.na(coffee_1$Altitude)
-
-any(is.na(coffee_1))
-
-coffee_1[which(coffee_1 == " "), c(10)]
-
-sum(!complete.cases(coffee$Altitude))
-
-sum(coffee$Altitude=="")
-sum(coffee$Country.of.Origin=="")
-View(table(coffee$Country.of.Origin))
-sum(coffee$Processing.Method=="")
-View(table(coffee$Processing.Method))
-```
+- Maybe here we can show the visual representation of before and after cleaning the data
 
 # 4. Exploratory Data Analysis
 
