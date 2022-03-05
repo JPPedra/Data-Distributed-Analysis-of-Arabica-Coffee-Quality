@@ -205,6 +205,31 @@ table(coffee_new_1$Quakers) ##
 table(coffee_new_1$Category.Two.Defects)
 ```
 
+```{r}
+#converting data type as factor
+coffee_new_1$Processing.Method<-as.factor(coffee_new_1$Processing.Method)
+coffee_new_1$Quakers<-as.factor(coffee_new_1$Quakers)
+
+#converting data type as integer
+coffee_new_1$Altitude<-as.integer(coffee_new_1$Altitude)
+coffee_new_1$Bag.Weight<-as.integer(coffee_new_1$Bag.Weight)
+
+#converting data type as double numerical
+coffee_new_1$Aroma<-as.double(coffee_new_1$Aroma)
+coffee_new_1$Flavor<-as.double(coffee_new_1$Flavor)
+coffee_new_1$Aftertaste<-as.double(coffee_new_1$Aftertaste)
+coffee_new_1$Acidity<-as.double(coffee_new_1$Acidity)
+coffee_new_1$Body<-as.double(coffee_new_1$Body)
+coffee_new_1$Balance<-as.double(coffee_new_1$Balance)
+coffee_new_1$Uniformity<-as.double(coffee_new_1$Uniformity)
+coffee_new_1$Clean.Cup<-as.double(coffee_new_1$Clean.Cup)
+coffee_new_1$Total.Cup.Points<-as.double(coffee_new_1$Total.Cup.Points)
+coffee_new_1$Moisture<-as.double(coffee_new_1$Moisture)
+
+#checking the structure of the data set with new data types
+str(coffee_new_1)
+```
+
 -dealing with Bag Weight first
   - all string 
   - Majority is kg put there are some in ilbs
@@ -235,6 +260,45 @@ exp$Bag.Weight <- sapply(exp$Bag.Weight, FUN = conversion)
 table(coffee_new_1$Bag.Weight)
 table(exp$Bag.Weight)
 exp$Bag.Weight
+```
+
+```{r}
+#count NA values
+coffee_NA_count <- apply(is.na(coffee_new_1), 2, sum)
+coffee_NA_count
+
+# the percentage of NA per variable
+coffee_NA_perc <- coffee_NA_count / dim(coffee_new_1)[1] * 100
+coffee_NA_perc
+```
+
+```{r}
+# impute missing values by replacement with the mean value
+median_Body <- median(coffee_new_1$Body, na.rm = T)
+coffee_new_1[is.na(coffee_new_1$Body), '7.500'] = median_Body
+
+median_Balance <- median(coffee_new_1$Balance, na.rm = T)
+coffee_new_1[is.na(coffee_new_1$Balance), '7.500'] = median_Balance
+
+median_Sweetness <- median(coffee_new_1$Sweetness, na.rm = T)
+coffee_new_1[is.na(coffee_new_1$Sweetness), '10.000'] = median_Sweetness
+
+median_Uniformity <- median(coffee_new_1$Uniformity, na.rm = T)
+coffee_new_1[is.na(coffee_new_1$Uniformity), '10.00'] = median_Uniformity
+
+median_Clean.Cup <- median(coffee_new_1$Clean.Cup, na.rm = T)
+coffee_new_1[is.na(coffee_new_1$Clean.Cup), '10.000'] = median_Clean.Cup
+```
+
+```{r}
+#omit categorical NAs
+
+coffee_new_noNA <- na.omit(coffee_new_1$Country.of.Origin)
+```
+
+```{r}
+coffee_new_1 <- coffee_new_1 %>% 
+  replace_with_na(replace = list(Bag.Weight = 9900))
 ```
 
 
