@@ -21,7 +21,7 @@ library(dplyr)
 library(tidyverse)
 library(validate)
 # For Data visualisation
-
+library(ggplot2)
 ```
 
 # 3. Data Cleaning and Preparation
@@ -60,7 +60,155 @@ str(coffee_fac_lev)
 summary(coffee_fac_lev)
 ```
 
-validate 
+
+- There is alot of errors and redudant information
+- can see the amount of missings informations, etc. 
+(maybe this is where we use the validate package?)
+- As a results, in order to answer our research, we would only need the following variables....
+
+----
+à	ID
+à	Owner
+à	Farm Name
+à	Lot Number
+à	Mill 
+à	ICO Number
+à	Company
+à	Region
+à	Producer
+à	In country Partner
+à	Harvest Year
+à	Owner 1
+à	Expiration
+à	Certification Body
+à	certification address 
+à	Certification number
+à	Unit of measurements
+^^ this is needs to be fixed accordingly
+
+----
+
+```{r}
+colnames(coffee)
+str(coffee_new)
+
+## should get rid of (processing methods), color, and species as these are associated with the bean metadata and not the part of the quality of the coffee, plus they have alot of missing rows
+
+coffee_new <- coffee %>%
+  select(-c( ## removing data regarding the Farm 
+            "Owner", "Farm.Name", "Lot.Number", "Mill", "ICO.Number",
+            "Company","Region","Producer","In.Country.Partner","Harvest.Year","Owner.1","Variety", "Expiration",
+            "Certification.Body","Certification.Address","Certification.Contact","unit_of_measurement",
+            ## removing data regard the bean
+            "Color", "Species", "Altitude", "altitude_low_meters", "altitude_high_meters", "altitude_mean_meters", "ID", "Grading.Date"
+            )
+         )
+colnames(coffee_new)
+str(coffee_new)
+summary(coffee_new)
+```
+
+
+
+- Assessing Empty Rows
+```{r}
+summary(coffee_new)
+colSums(is.na(coffee_new))
+colSums(coffee_new == "")
+
+#https://stackoverflow.com/questions/42721788/filter-empty-rows-from-a-dataframe-with-r
+coffee_new_1 <- coffee_new[Reduce(`&`, lapply(coffee_new, 
+                                              function(x) !(x==""))),]
+
+colSums(is.na(coffee_new_1))
+colSums(coffee_new_1 == "")
+```
+
+Investigating further to identify the errors and see from there what is the appropriate approach
+```{r}
+table(coffee_new_1$Country.of.Origin)
+View(table(coffee_new_1$Number.of.Bags))
+table(coffee_new_1$Bag.Weight) ##
+table(coffee_new_1$Processing.Method)
+table(coffee_new_1$Aroma) ##
+table(coffee_new_1$Flavor) 
+table(coffee_new_1$Aftertaste) 
+table(coffee_new_1$Acidity) 
+table(coffee_new_1$Body)
+table(coffee_new_1$Balance)
+table(coffee_new_1$Uniformity) ##
+table(coffee_new_1$Clean.Cup) ##
+table(coffee_new_1$Sweetness) ##
+table(coffee_new_1$Cupper.Points) ##
+table(coffee_new_1$Total.Cup.Points) ##
+table(coffee_new_1$Moisture) 
+table(coffee_new_1$Category.One.Defects)
+table(coffee_new_1$Quakers) ##
+table(coffee_new_1$Category.Two.Defects)
+```
+
+-dealing with Bag Weight first
+  - all string 
+  - Majority is kg put there are some in lbs
+  - Created a function to fix this so that all the values are converted to numeric and all have the same unit
+```{r}
+coffee_new_1
+table(coffee_new_1$Bag.Weight)
+
+coffee_new_1$Bag.Weight <- coffee_new_1$Bag.Weight %>% 
+  replace_na("9900 kg")
+
+colSums(is.na(coffee_new_1))
+
+conversion <- function(x){
+  # splitting the string; y is a list
+  y <- strsplit(x, " ")
+  
+  if (y[[1]][2] == "lbs") { #traversing the list within a list
+    x <- gsub(" lbs", "", x)
+    x <- 0.45 * as.numeric(x)
+  } else {
+    x <- gsub(" kg", "", x)
+    x <- as.numeric(x)
+  }
+}
+coffee_new_1$Bag.Weight <- sapply(coffee_new_1$Bag.Weight, FUN = conversion)
+table(coffee_new_1$Bag.Weight)
+str(coffee_new_1)
+```
+
+Perform data type conversion 
+- character to factors
+- character that hold numbers to double numerical 
+- excluding bag weight as the conversion would not work -> both string and "number" and the units are not the same
+```{r}
+#converting data type as factor
+coffee_new_1$Processing.Method<-as.factor(coffee_new_1$Processing.Method)
+coffee_new_1$Quakers<-as.factor(coffee_new_1$Quakers)
+#converting data type as integer
+#coffee_new_1$Altitude<-as.integer(coffee_new_1$Altitude)
+#coffee_new_1$Bag.Weight<-as.integer(coffee_new_1$Bag.Weight)
+
+#converting data type as double numerical
+coffee_new_1$Number.of.Bags <- as.double(coffee_new_1$Number.of.Bags)
+
+coffee_new_1$Aroma<-as.double(coffee_new_1$Aroma)
+coffee_new_1$Flavor<-as.double(coffee_new_1$Flavor)
+coffee_new_1$Aftertaste<-as.double(coffee_new_1$Aftertaste)
+coffee_new_1$Acidity<-as.double(coffee_new_1$Acidity)
+coffee_new_1$Body<-as.double(coffee_new_1$Body)
+coffee_new_1$Balance<-as.double(coffee_new_1$Balance)
+coffee_new_1$Uniformity<-as.double(coffee_new_1$Uniformity)
+coffee_new_1$Clean.Cup<-as.double(coffee_new_1$Clean.Cup)
+coffee_new_1$Total.Cup.Points<-as.double(coffee_new_1$Total.Cup.Points)
+coffee_new_1$Cupper.Points<-as.double(coffee_new_1$Cupper.Points)
+coffee_new_1$Moisture<-as.double(coffee_new_1$Moisture)
+coffee_new_1$Category.One.Defects<-as.double(coffee_new_1$Category.One.Defects) 
+#checking the structure of the data set with new data types
+str(coffee_new_1)
+```
+
+validate (before)
 ```{r}
 coffee.rules <- validator(okID = ID>=0, 
                           SpeciesCorrect = is.element(Species,c("Arabica")), 
@@ -105,202 +253,113 @@ summary(out)
 plot(out)
 ```
 
-- There is alot of errors and redudant information
-- can see the amount of missings informations, etc. 
-(maybe this is where we use the validate package?)
-- As a results, in order to answer our research, we would only need the following variables....
-
-----
-à	ID
-à	Owner
-à	Farm Name
-à	Lot Number
-à	Mill 
-à	ICO Number
-à	Company
-à	Region
-à	Producer
-à	In country Partner
-à	Harvest Year
-à	Owner 1
-à	Expiration
-à	Certification Body
-à	certification address 
-à	Certification number
-à	Unit of measurements
-^^ this is needs to be fixed accordingly
-
-----
-
-```{r}
-#----
-# colnames(coffee)
-# coffee %>%
-#   select(-c("Owner", "Farm.Name", "Lot.Number", "Mill", "ICO.Number", "Company","Region","Producer","In.Country.Partner","Harvest.Year","Owner.1","Variety", "Expiration", "Certification.Body","Certification.Address","Certification.Contact","unit_of_measurement"))
-# 
-# colnames(coffee1)
-# 
-# # football_num <- football %>%
-# #   select(-c("sofifa_id", "club_name", "preferred_foot"))
-# # 
-# # coffee_new <- coffee[ ,c(1, 2, 4, 10, 13, 14, 17, 19:32, 34, 42:44)]
-# -----
-
-colnames(coffee)
-# coffee_new <- coffee %>%
-#   select(-c("Owner", "Farm.Name", "Lot.Number", "Mill", "ICO.Number", "Company","Region","Producer","In.Country.Partner","Harvest.Year","Owner.1","Variety", "Expiration", "Certification.Body","Certification.Address","Certification.Contact","unit_of_measurement"))
-
-colnames(coffee_new)
-str(coffee_new)
-
-## should get rid of (processing methods), color, and species as these are associated with the bean metadata and not the part of the quality of the coffee, plus they have alot of missing rows
-
-coffee_new <- coffee %>%
-  select(-c( ## removing data regarding the Farm 
-            "Owner", "Farm.Name", "Lot.Number", "Mill", "ICO.Number",
-            "Company","Region","Producer","In.Country.Partner","Harvest.Year","Owner.1","Variety", "Expiration",
-            "Certification.Body","Certification.Address","Certification.Contact","unit_of_measurement",
-            ## removing data regard the bean
-            "Color", "Species", "Altitude", "altitude_low_meters", "altitude_high_meters", "altitude_mean_meters", "ID", "Grading.Date"
-            )
-         )
-colnames(coffee_new)
-str(coffee_new)
-summary(coffee_new)
-```
-
-- Assessing Empty Rows
-```{r}
-summary(coffee_new)
-colSums(is.na(coffee_new))
-colSums(coffee_new == "")
-
-coffee_new_1 <- coffee_new[Reduce(`&`, lapply(coffee_new, 
-                                              function(x) !(x==""))),]
-
-colSums(is.na(coffee_new_1))
-colSums(coffee_new_1 == "")
-```
-
-Investigating further to identify the errors and see from there what is the appropriate approach
-```{r}
-table(coffee_new_1$Country.of.Origin)
-table(coffee_new_1$Number.of.Bags)
-table(coffee_new_1$Bag.Weight) ##
-table(coffee_new_1$Processing.Method)
-table(coffee_new_1$Aroma) ##
-table(coffee_new_1$Flavor) 
-table(coffee_new_1$Aftertaste) 
-table(coffee_new_1$Acidity) 
-table(coffee_new_1$Body)
-table(coffee_new_1$Balance)
-table(coffee_new_1$Uniformity) ##
-table(coffee_new_1$Clean.Cup) ##
-table(coffee_new_1$Sweetness) ##
-table(coffee_new_1$Cupper.Points) ##
-table(coffee_new_1$Total.Cup.Points) ##
-table(coffee_new_1$Moisture) 
-table(coffee_new_1$Category.One.Defects)
-table(coffee_new_1$Quakers) ##
-table(coffee_new_1$Category.Two.Defects)
-```
-
-```{r}
-#converting data type as factor
-coffee_new_1$Processing.Method<-as.factor(coffee_new_1$Processing.Method)
-coffee_new_1$Quakers<-as.factor(coffee_new_1$Quakers)
-
-#converting data type as integer
-coffee_new_1$Altitude<-as.integer(coffee_new_1$Altitude)
-coffee_new_1$Bag.Weight<-as.integer(coffee_new_1$Bag.Weight)
-
-#converting data type as double numerical
-coffee_new_1$Aroma<-as.double(coffee_new_1$Aroma)
-coffee_new_1$Flavor<-as.double(coffee_new_1$Flavor)
-coffee_new_1$Aftertaste<-as.double(coffee_new_1$Aftertaste)
-coffee_new_1$Acidity<-as.double(coffee_new_1$Acidity)
-coffee_new_1$Body<-as.double(coffee_new_1$Body)
-coffee_new_1$Balance<-as.double(coffee_new_1$Balance)
-coffee_new_1$Uniformity<-as.double(coffee_new_1$Uniformity)
-coffee_new_1$Clean.Cup<-as.double(coffee_new_1$Clean.Cup)
-coffee_new_1$Total.Cup.Points<-as.double(coffee_new_1$Total.Cup.Points)
-coffee_new_1$Moisture<-as.double(coffee_new_1$Moisture)
-
-#checking the structure of the data set with new data types
-str(coffee_new_1)
-```
-
--dealing with Bag Weight first
-  - all string 
-  - Majority is kg put there are some in ilbs
-  - Created a function to fix this so that all the values are converted to numeric and all have the same unit
-```{r}
-exp <- coffee_new_1
-table(exp$Bag.Weight)
-
-exp$Bag.Weight <- exp$Bag.Weight %>% 
-  replace_na("9900 kg")
-
-colSums(is.na(exp))
-
-conversion <- function(x){
-  # splitting the string; y is a list
-  y <- strsplit(x, " ")
-  
-  if (y[[1]][2] == "lbs") { #traversing the list within a list
-    x <- gsub(" lbs", "", x)
-    x <- 0.45 * as.numeric(x)
-  } else {
-    x <- gsub(" kg", "", x)
-    x <- as.numeric(x)
-  }
-}
-
-exp$Bag.Weight <- sapply(exp$Bag.Weight, FUN = conversion)
-table(coffee_new_1$Bag.Weight)
-table(exp$Bag.Weight)
-exp$Bag.Weight
-```
 
 ```{r}
 #count NA values
 coffee_NA_count <- apply(is.na(coffee_new_1), 2, sum)
 coffee_NA_count
-
 # the percentage of NA per variable
 coffee_NA_perc <- coffee_NA_count / dim(coffee_new_1)[1] * 100
 coffee_NA_perc
 ```
 
+- Then apply NA imputation to all numerical variables
 ```{r}
 # impute missing values by replacement with the mean value
+  # using mutate_if function and if else condition to find any NAs in any numerical columns and replace it with their according median
+coffee_new_1 <- coffee_new_1 %>% 
+  mutate_if(is.numeric, function(x) ifelse(is.na(x), median(x, na.rm = T), x))
+colSums(is.na(coffee_new_1))
+
 median_Body <- median(coffee_new_1$Body, na.rm = T)
-coffee_new_1[is.na(coffee_new_1$Body), '7.500'] = median_Body
+coffee_new_1[is.na(coffee_new_1$Body), 7.500] = median_Body
+# 
+# median_Balance <- median(coffee_new_1$Balance, na.rm = T)
+# coffee_new_1[is.na(coffee_new_1$Balance), 7.500] = median_Balance
+# 
+# median_Sweetness <- median(coffee_new_1$Sweetness, na.rm = T)
+# coffee_new_1[is.na(coffee_new_1$Sweetness), 10.000] = median_Sweetness
+# 
+# median_Uniformity <- median(coffee_new_1$Uniformity, na.rm = T)
+# coffee_new_1[is.na(coffee_new_1$Uniformity), 10.00] = median_Uniformity
+# 
+# median_Clean.Cup <- median(coffee_new_1$Clean.Cup, na.rm = T)
+# coffee_new_1[is.na(coffee_new_1$Clean.Cup), 10.000] = median_Clean.Cup
 
-median_Balance <- median(coffee_new_1$Balance, na.rm = T)
-coffee_new_1[is.na(coffee_new_1$Balance), '7.500'] = median_Balance
-
-median_Sweetness <- median(coffee_new_1$Sweetness, na.rm = T)
-coffee_new_1[is.na(coffee_new_1$Sweetness), '10.000'] = median_Sweetness
-
-median_Uniformity <- median(coffee_new_1$Uniformity, na.rm = T)
-coffee_new_1[is.na(coffee_new_1$Uniformity), '10.00'] = median_Uniformity
-
-median_Clean.Cup <- median(coffee_new_1$Clean.Cup, na.rm = T)
-coffee_new_1[is.na(coffee_new_1$Clean.Cup), '10.000'] = median_Clean.Cup
+colSums(is.na(coffee_new_1))
 ```
+
 
 ```{r}
 #omit categorical NAs
+# a <- coffee_new_1
+# a <- na.omit(a)
+# coffee_new_noNA <- na.omit(coffee_new_1$Country.of.Origin)
 
-coffee_new_noNA <- na.omit(coffee_new_1$Country.of.Origin)
+coffee_new_1$Bag.Weight <- coffee_new_1$Bag.Weight %>% 
+  replace_na("99999 kg")
+
+#coffee_new_1 <- na.omit(coffee_new_1)
+```
+
+-dealing with Bag Weight problem
+  - all string 
+  - Majority is kg put there are some in lbs
+  - Created a function to fix this so that all the values are converted to numeric and all have the same unit
+```{r}
+coffee_new_1
+table(coffee_new_1$Bag.Weight)
+
+# replace NA with fake number as the function below is sensitive to NAs 
+coffee_new_1$Bag.Weight <- coffee_new_1$Bag.Weight %>% 
+  replace_na("99999 kg")
+
+colSums(is.na(coffee_new_1))
+
+# user define function to perform lbs to kg unit conversion with string characters
+conversion <- function(x){
+  # splitting the string; y is a list
+  y <- strsplit(x, " ")
+  
+  if (y[[1]][2] == "lbs") { #traversing the list within a list
+    # Dropping "lbs" units
+    x <- gsub(" lbs", "", x)
+    # Then performing the unit conversion whilst converting the result to numeric
+    x <- 0.45 * as.numeric(x)
+  } else {
+    # dropping the "kg" unit
+    x <- gsub(" kg", "", x)
+    # converting the string values to numeric data type
+    x <- as.numeric(x)
+  }
+}
+# Applying the function to our bag weight variable
+coffee_new_1$Bag.Weight <- sapply(coffee_new_1$Bag.Weight, FUN = conversion)
+table(coffee_new_1$Bag.Weight)
+str(coffee_new_1)
 ```
 
 ```{r}
+# have to change the fake number to NA before doing NA imputation to Bag Weight , will use the naniar function
+table(coffee_new_1$Bag.Weight)
+library(naniar)
+#exp<- coffee_new_1
 coffee_new_1 <- coffee_new_1 %>% 
-  replace_with_na(replace = list(Bag.Weight = 9900))
+  replace_with_na(replace = list(Bag.Weight = 99999))
+table(coffee_new_1$Bag.Weight)
+colSums(is.na(coffee_new_1))
 ```
 
+```{r}
+# Then perform NA imputation to Bag weight
+
+median_Bag_weight <- median(coffee_new_1$Bag.Weight, na.rm = T)
+coffee_new_1[is.na(coffee_new_1$Bag.Weight), 10.000] = median_Bag_weight
+
+
+# Then drop any other NA from the character variables
+coffee_new_1 <- na.omit(coffee_new_1)
+```
 
 - look out for duplicates??
 - look out for outliers
@@ -309,8 +368,72 @@ coffee_new_1 <- coffee_new_1 %>%
 
 - Maybe here we can show the visual representation of before and after cleaning the data
 
+```{r}
+str(coffee_new_1)
+table(coffee_new_1$Number.of.Bags)
+boxplot(coffee_new_1$Number.of.Bags)
+boxplot(coffee_new_1$Bag.Weight)
+boxplot(coffee_new_1$Aroma)
+boxplot(coffee_new_1$Flavor)
+boxplot(coffee_new_1$Aftertaste)
+boxplot(coffee_new_1$Acidity)
+boxplot(coffee_new_1$Body)
+boxplot(coffee_new_1$Balance)
+boxplot(coffee_new_1$Uniformity)
+boxplot(coffee_new_1$Clean.Cup)
+boxplot(coffee_new_1$Sweetness)
+boxplot(coffee_new_1$Cupper.Points)
+boxplot(coffee_new_1$Total.Cup.Points)
+boxplot(coffee_new_1$Moisture)
+boxplot(coffee_new_1$Category.One.Defects)
+boxplot(coffee_new_1$Quakers)
+boxplot(coffee_new_1$Category.Two.Defects)
+```
+
+```{r}
+table(coffee_new_1$Aroma)
+boxplot(coffee_new_1$Aroma)
+plot(coffee_new_1$Aroma)
+```
+
+```{r}
+table(coffee_new_1$Country.of.Origin)
+```
+
 # 4. Exploratory Data Analysis
 
+PCA
+```{r}
+str(coffee_new_1)
+colSums(is.na(coffee_new_1))
+coffee_pca <- prcomp(coffee_new_1[ ,-c(1,4,18)], center = T, scale = T)
+coffee_pca
+summary(coffee_pca)
+```
+
+```{r}
+# calculate the proportion of explained variance (PEV) from the std values
+  # sd ^ 2
+coffee_pca_var <- coffee_pca$sdev^2
+coffee_pca_var
+  # PEV is calculated by getting the variance and dividing it by the sum of the variance
+coffee_pca_PEV <- coffee_pca_var / sum(coffee_pca_var)
+coffee_pca_PEV
+
+plot(coffee_pca)
+
+opar <- par(no.readonly = TRUE)
+plot(
+  cumsum(coffee_pca_PEV),
+  ylim = c(0,1),
+  xlab = 'PC',
+  ylab = 'cumulative PEV',
+  pch = 20,
+  col = 'orange'
+)
+abline(h = 0.8, col = 'red', lty = 'dashed')
+par(opar)
+```
 
 
 
