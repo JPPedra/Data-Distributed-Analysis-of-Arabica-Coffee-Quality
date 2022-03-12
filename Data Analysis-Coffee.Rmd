@@ -3,8 +3,9 @@ title: "CS5811-Data Distributed Analysis-Data Analysis on Arabica Coffee Beans"
 author: "Hawra Nawrozzadeh, Joao Pedro Azevedo, and Roberta Sammarco"
 date: "10/02/2022"
 output: html_document
+version: 1.0
 editor_options: 
-  chunk_output_type: console
+  chunk_output_type: inline
 ---
 
 # 1. Introduction
@@ -29,7 +30,7 @@ library(ggplot2)
 ## 3.1 Loading the data 
 
 ```{r}
-coffee <- read.csv("data/Coffee-modified.csv")
+coffee <- read.csv("Coffee-modified.csv")
 ```
 
 
@@ -55,7 +56,7 @@ summary(coffee)
 - cant get much from `summary()` function--> use `stringAsFactor = T` to get some more insight 
 
 ```{r}
-coffee_fac_lev <- read.csv("data/Coffee-modified.csv", stringsAsFactors = T)
+coffee_fac_lev <- read.csv("Coffee-modified.csv", stringsAsFactors = T)
 str(coffee_fac_lev)
 summary(coffee_fac_lev)
 ```
@@ -90,7 +91,6 @@ summary(coffee_fac_lev)
 
 ```{r}
 colnames(coffee)
-str(coffee_new)
 
 ## should get rid of (processing methods), color, and species as these are associated with the bean metadata and not the part of the quality of the coffee, plus they have alot of missing rows
 
@@ -100,7 +100,7 @@ coffee_new <- coffee %>%
             "Company","Region","Producer","In.Country.Partner","Harvest.Year","Owner.1","Variety", "Expiration",
             "Certification.Body","Certification.Address","Certification.Contact","unit_of_measurement",
             ## removing data regard the bean
-            "Color", "Species", "Altitude", "altitude_low_meters", "altitude_high_meters", "altitude_mean_meters", "ID", "Grading.Date"
+            "Color", "Species", "Altitude", "altitude_low_meters", "altitude_high_meters", "altitude_mean_meters", "Grading.Date"
             )
          )
 colnames(coffee_new)
@@ -177,10 +177,43 @@ table(coffee_new_1$Bag.Weight)
 str(coffee_new_1)
 ```
 
+
+
+# Variables:
+
+# what variables are in the correct data type?
+
+1- Species should be categorical / correct (many wrong imputed values)
+2 - Country.of.Origin should be categorical / correct 
+3 - Altitude should be integer / incorrect as it is categorical
+4 - Number.of.Bags should be integer / incorrect as it is categorical
+5 - Bag.Weight should be integer / incorrect as it is categorical
+6 - Grading.Date should be integer / incorrect as it is categorical - maybe change the format to only numbers ?
+7 - Processing.Method should be factor / incorrect 
+8 - Aroma should be double(numerical) / incorrect as it is categorical
+9 - Flavor should be double(numerical) / incorrect as it is categorical
+10 - Aftertaste should be double(numerical) / incorrect as it is categorical
+11 - Acidity should be double(numerical) / incorrect as it is categorical
+12 - Body should be double(numerical) / correct
+13 - Balance should be double(numerical) / correct
+14 - Uniformity should be double(numerical) / correct
+15 - Clean.Cup should be double(numerical) / correct
+16 - Sweetness should be double(numerical) / correct
+17 - Cupper.Points should be double(numerical) / incorrect as it is categorical
+18 - Total.Cup.Points should be double(numerical) / incorrect as it is categorical
+19 - Moisture should be double(numerical) / incorrect as it is categorical
+20 - Category.One.Defects should be factor / incorrect as it is categorical
+21 - Quakers should be factor / incorrect as it is categorical - it has one wrong input, maybe delete that 
+22 - Color should be categorical / correct 
+23 - Category.Two.Defects should be integer / correct - maybe check if this should be factor if it corresponds to how good the quality is 
+
+
 Perform data type conversion 
 - character to factors
 - character that hold numbers to double numerical 
 - excluding bag weight as the conversion would not work -> both string and "number" and the units are not the same
+
+
 ```{r}
 #converting data type as factor
 coffee_new_1$Processing.Method<-as.factor(coffee_new_1$Processing.Method)
@@ -236,7 +269,6 @@ coffee.rules <- validator(okID = ID>=0,
                           NoExtTotalPoints = Total.Cup.Points<=100, 
                           NoNegMoisture = Moisture>0, 
                           NoNegQuakers = Quakers>=0, 
-                          NoExtQuakers = Quakers <=3,
                           ColorCorrect = is.element(Color,
                                                     c("Green", "None" , "Bluish-Green", "Blue-Green")),
                           NoMinaltitute = altitude_low_meters>=1,
@@ -296,7 +328,7 @@ colSums(is.na(coffee_new_1))
 # a <- na.omit(a)
 # coffee_new_noNA <- na.omit(coffee_new_1$Country.of.Origin)
 
-coffee_new_1$Bag.Weight <- coffee_new_1$Bag.Weight %>% 
+coffee_new$Bag.Weight <- coffee_new_1$Bag.Weight %>% 
   replace_na("99999 kg")
 
 #coffee_new_1 <- na.omit(coffee_new_1)
@@ -311,7 +343,7 @@ coffee_new_1
 table(coffee_new_1$Bag.Weight)
 
 # replace NA with fake number as the function below is sensitive to NAs 
-coffee_new_1$Bag.Weight <- coffee_new_1$Bag.Weight %>% 
+coffee_new$Bag.Weight <- coffee_new_1$Bag.Weight %>% 
   replace_na("99999 kg")
 
 colSums(is.na(coffee_new_1))
@@ -399,6 +431,199 @@ plot(coffee_new_1$Aroma)
 ```{r}
 table(coffee_new_1$Country.of.Origin)
 ```
+
+
+
+# Identify and Remove Outliers
+
+```{r}
+str(coffee_new_1)
+```
+
+
+# 1- Country.of.Origin 
+
+```{r}
+# function returns the frequency for this variable - makes it possible to identify any outliers
+table(coffee_new_1$Country.of.Origin)
+
+#Code to correct the value to Cote d'Ivoire
+coffee_new_1["Country.of.Origin"][coffee_new_1["Country.of.Origin"] == "Cote d?Ivoire"] = "Cote d'Ivoire"
+
+#Code to correct the value to United Republic of Tanzania
+coffee_new_1["Country.of.Origin"][coffee_new_1["Country.of.Origin"] == "Tanzania, United Republic Of"] = "United Republic of Tanzania"
+```
+
+Table function shows that the variable country has one value for "Cote d?Ivoire". This country corresponds to Côte d'Ivoire and it might have been wrongly imputed. Moreover, the same happens with "Tanzania, United Republic Of" that should be United Republic of Tanzania.
+
+
+# 2- Number.of.Bags 
+
+```{r}
+# the variable was not previously converted and it should be numeric type.
+coffee_new_1$Number.of.Bags <- as.numeric(coffee_new_1$Number.of.Bags)
+
+# plot to investigate any outliers
+
+ggplot(coffee_new_1) +
+  aes(x = Number.of.Bags) +
+  geom_histogram(bins = 30L, fill = "#0c4c8a") +
+  theme_minimal()
+
+# Use summary function to confirm the outliers - should be the maximum value for this variable 
+summary(coffee_new_1$Number.of.Bags)
+```
+
+The histogram shows that the variable has one possible outlier -  there seems to be one observation higher than all other observations - it should correspond to the maximum value of this variable. 
+To confirm this value, summary function shows a Max of 1062. 
+Is then necessary to identify the problem with 1062 number of bags, as it is a value out of the ordinary for this variable.
+
+```{r}
+# function to identify which country has 1062 number of bags
+subset(coffee_new_1, Number.of.Bags == 1062.0)
+
+# function to understand if it is the norm for Brazil to have 1000 number of bags
+subset(coffee_new_1, Country.of.Origin == "Brazil")
+```
+
+The output shows that the country Brazil is not set to have 1000 number of bags as the norm. This means that 1062 number of bags is an outlier and needs further investigation.
+However, for 1062 number of bags, this variable has 6 quackers, which relates to the poor quality of this set of coffee beans. This explains why there are more number of bags - less quality leads to the need to collect more beans, which leads to more bags.
+(It is probably necessary to replace this value by the mean)
+
+```{r}
+summary(coffee_new_1$Number.of.Bags)
+# maybe check the mean for the number of bags in Brazil?
+# Mean = 153.6
+```
+
+# 3 - Quakers - unripened coffee beans, often with a wrinkled surface, not darken well when roasted.
+
+```{r}
+# Function to get the frequency of this variable - it shows 2 NAs for this variable
+coffee_new_1 %>% count(Quakers)
+
+# this function replaces NA by 0
+coffee_new_1[is.na(coffee_new_1$Quakers) , ] = 0
+
+# Quakers are not necessarily less than 3, go up and change the validate function. 
+
+ggplot(coffee_new_1, aes(Quakers)) + geom_bar(fill = "#0099F8")
+
+```
+The plot shows no outliers.
+
+# 4 - Processing.Method
+
+```{r}
+# Function to get the frequency of this variable - it shows 2 missing values for this variable
+coffee_new_1 %>% count(Processing.Method)
+
+# output shows NA, this function replaces NA by "Other"
+coffee_new_1[is.na(coffee_new_1$Processing.Method) , ] <- "Other"
+
+# function to check for outliers 
+ggplot(coffee_new_1, aes(Processing.Method)) + geom_bar(fill="steelblue") + coord_flip()
+
+```
+
+The output shows no outliers for the Processing.Method variable - it also shows that both NA was correctly replaced by "Other".
+Moreover, the output also shows that "Washed/Wet" is the most used processing method and that "Pulped natural" is hte least used.
+
+
+# 5 -  Total.Cup.Points - score coffee on a standardized scale, from 0 to 100.
+
+This variable should range from 0 to 100 and, for a better quality coffee, it should have a value between 80 to 90 (Authentic Coffee Co., 2022)
+
+```{r}
+aggregate(coffee_new_1$Total.Cup.Points, list(coffee_new_1$Country.of.Origin), FUN=mean) 
+```
+
+The output shows an average of Total.Cup.Points similar to all the countries in this dataset. This means that there are not potential outliers for the Total.Cup.Points variable.
+
+Moreover, the output shows that countries like Cote d'Ivoire, Haiti, India and Nicaragua have a poor Total.Cup.Points value, as it is less than 80.
+
+
+# 6 - Aroma, Flavor, Aftertaste, Acidity, Body, Balance, Uniformity, Clean.Cup, Sweetness
+
+The coffee quality can be measured by professionals according to several factors such as: Acidity, Aroma, Flavor, Balance, Sweetness, among
+others. They also grade each one of these factors in order to get the final score, which indicates the quality of this coffee (Souza, 2022).
+
+Distribution of this variables is presented below.
+
+```{r}
+# Plot function to investigate the distribution of each numerical variables and their relationship.
+ggplot(coffee_new_1, aes(Aroma, Flavor)) + geom_point()
+ggplot(coffee_new_1, aes(Aftertaste, Acidity)) + geom_point()
+ggplot(coffee_new_1, aes(Body, Balance)) + geom_point()
+ggplot(coffee_new_1, aes(Uniformity, Sweetness)) + geom_point()
+
+
+# the variable was not previously converted and it should be numeric type.
+coffee_new_1$Sweetness <- as.numeric(coffee_new_1$Sweetness)
+
+# the variable was not previously converted and it should be numeric type.
+coffee_new_1$Cupper.Points <- as.numeric(coffee_new_1$Cupper.Points)
+
+
+subset(coffee_new_1, Aroma == 5.08)
+subset(coffee_new_1, Acidity == 5.25)
+```
+
+The geom_point output above represented show two possible outliers - for variables Aroma and Acidity.
+The first one, happens when  Aroma = 5.08 and Acidity = 5.25. However, even thought these two variables are out of the mean values, they stil range between 0-10, which means that they should not be outliers.
+
+(Shows a value of 8.33 for Body when Acidity is 7.08 - even thought is a high value for body when compared with the rest of the variable but it is still within the correct range).
+
+Moreover, the geom_point output does not present any outlier and shows that Flavor-Aroma and Acidity-Aftertaste have a positive correlation between them.
+
+
+# 7 - Cupper.Points and Clean.Cup
+
+Furthermore, the two variables 
+Cupper.Points - Any negative marks that appear in the Uniformity, Clean Cup and Sweetness categories are deducted as two points per cup 
+# and
+Clean.Cup - refers to a coffee free of taints and defects.
+
+```{r}
+ggplot(coffee_new_1, aes(Cupper.Points)) + geom_histogram(binwidth = 0.3)
+
+ggplot(coffee_new_1, aes(Clean.Cup)) + geom_histogram(binwidth = 0.5)
+
+# count function to confirm there are no outliers as represented in the ggplot output
+coffee_new_1 %>% count(Cupper.Points)
+coffee_new_1 %>% count(Clean.Cup)
+
+table(coffee_new_1$Clean.Cup)
+```
+
+The output does not present any possible outlier for these two variables.
+Furthermore, as the clean.cup variable corresponds to a coffee free of taints and defects, it makes sense to have 1057 count when clean cup is equal to 10. This means that 1057 coffee beans have no defects.
+
+
+# 8 - Moisture
+
+```{r}
+ggplot(coffee_new_1, aes(Moisture)) + geom_histogram(binwidth = 0.10)
+
+table(coffee_new_1$Moisture)
+```
+
+The ggplot output shows that this variable does not present any outlier - most coffee beans have a 0.1 level of moisture.
+
+# 8 - Category.One.Defects and Category.Two.Defects
+
+Bean defects of Category One are rare, as are Quakers.
+Bean defects of Category Two are more common and the distribution appears to be approximately log-normal.
+
+```{r}
+ggplot(coffee_new_1, aes(Category.One.Defects, Category.Two.Defects)) + geom_boxplot()
+
+ggplot(coffee_new_1, aes(Category.One.Defects)) + geom_histogram(binwidth = 10)
+ggplot(coffee_new_1, aes(Category.Two.Defects)) + geom_histogram(binwidth = 10)
+```
+
+I do not really understand what these two categories are - could not find anything good on the internet.
+
 
 # 4. Exploratory Data Analysis
 
