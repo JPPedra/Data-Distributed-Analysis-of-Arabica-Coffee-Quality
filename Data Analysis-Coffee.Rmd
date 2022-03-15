@@ -147,37 +147,6 @@ table(coffee_new_1$Quakers) ##
 table(coffee_new_1$Category.Two.Defects)
 ```
 
--dealing with Bag Weight first
-  - all string 
-  - Majority is kg put there are some in lbs
-  - Created a function to fix this so that all the values are converted to numeric and all have the same unit
-```{r}
-coffee_new_1
-table(coffee_new_1$Bag.Weight)
-
-coffee_new_1$Bag.Weight <- coffee_new_1$Bag.Weight %>% 
-  replace_na("9900 kg")
-
-colSums(is.na(coffee_new_1))
-
-conversion <- function(x){
-  # splitting the string; y is a list
-  y <- strsplit(x, " ")
-  
-  if (y[[1]][2] == "lbs") { #traversing the list within a list
-    x <- gsub(" lbs", "", x)
-    x <- 0.45 * as.numeric(x)
-  } else {
-    x <- gsub(" kg", "", x)
-    x <- as.numeric(x)
-  }
-}
-coffee_new_1$Bag.Weight <- sapply(coffee_new_1$Bag.Weight, FUN = conversion)
-table(coffee_new_1$Bag.Weight)
-str(coffee_new_1)
-```
-
-
 
 # Variables:
 
@@ -321,19 +290,6 @@ coffee_new_1[is.na(coffee_new_1$Body), 7.500] = median_Body
 colSums(is.na(coffee_new_1))
 ```
 
-
-```{r}
-#omit categorical NAs
-# a <- coffee_new_1
-# a <- na.omit(a)
-# coffee_new_noNA <- na.omit(coffee_new_1$Country.of.Origin)
-
-coffee_new$Bag.Weight <- coffee_new_1$Bag.Weight %>% 
-  replace_na("99999 kg")
-
-#coffee_new_1 <- na.omit(coffee_new_1)
-```
-
 -dealing with Bag Weight problem
   - all string 
   - Majority is kg put there are some in lbs
@@ -343,7 +299,7 @@ coffee_new_1
 table(coffee_new_1$Bag.Weight)
 
 # replace NA with fake number as the function below is sensitive to NAs 
-coffee_new$Bag.Weight <- coffee_new_1$Bag.Weight %>% 
+coffee_new_1$Bag.Weight <- coffee_new_1$Bag.Weight %>% 
   replace_na("99999 kg")
 
 colSums(is.na(coffee_new_1))
