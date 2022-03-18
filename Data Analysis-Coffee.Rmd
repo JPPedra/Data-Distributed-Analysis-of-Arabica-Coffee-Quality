@@ -435,6 +435,14 @@ To confirm this value, summary function shows a Max of 1062.
 Is then necessary to identify the problem with 1062 number of bags, as it is a value out of the ordinary for this variable.
 
 ```{r}
+# boxplot function to identify the possible outlier
+bags_boxplot <- boxplot(coffee_new_1$Number.of.Bags, plot = F)
+
+# minimum function will get this number as the minimum outlier possible
+bags_threshold <- min(bags_boxplot$out)
+
+bags_threshold # returns 1062, which is the outlier
+
 # function to identify which country has 1062 number of bags
 subset(coffee_new_1, Number.of.Bags == 1062.0)
 
@@ -464,9 +472,9 @@ coffee_new_1[is.na(coffee_new_1$Quakers) , ] = 0
 # Quakers are not necessarily less than 3, go up and change the validate function. 
 
 ggplot(coffee_new_1, aes(Quakers)) + geom_bar(fill = "#0099F8")
-
 ```
 The plot shows no outliers.
+
 
 # 4 - Processing.Method
 
@@ -483,7 +491,7 @@ ggplot(coffee_new_1, aes(Processing.Method)) + geom_bar(fill="steelblue") + coor
 ```
 
 The output shows no outliers for the Processing.Method variable - it also shows that both NA was correctly replaced by "Other".
-Moreover, the output also shows that "Washed/Wet" is the most used processing method and that "Pulped natural" is hte least used.
+Moreover, the output also shows that "Washed/Wet" is the most used processing method and that "Pulped natural" is the least used.
 
 
 # 5 -  Total.Cup.Points - score coffee on a standardized scale, from 0 to 100.
@@ -497,6 +505,8 @@ aggregate(coffee_new_1$Total.Cup.Points, list(coffee_new_1$Country.of.Origin), F
 The output shows an average of Total.Cup.Points similar to all the countries in this dataset. This means that there are not potential outliers for the Total.Cup.Points variable.
 
 Moreover, the output shows that countries like Cote d'Ivoire, Haiti, India and Nicaragua have a poor Total.Cup.Points value, as it is less than 80.
+
+Concluding, this list shows no outliers as all the values range from 0 to 100.
 
 
 # 6 - Aroma, Flavor, Aftertaste, Acidity, Body, Balance, Uniformity, Clean.Cup, Sweetness
@@ -519,18 +529,38 @@ coffee_new_1$Sweetness <- as.numeric(coffee_new_1$Sweetness)
 
 # the variable was not previously converted and it should be numeric type.
 coffee_new_1$Cupper.Points <- as.numeric(coffee_new_1$Cupper.Points)
-
-
-subset(coffee_new_1, Aroma == 5.08)
-subset(coffee_new_1, Acidity == 5.25)
 ```
 
 The geom_point output above represented show two possible outliers - for variables Aroma and Acidity.
-The first one, happens when  Aroma = 5.08 and Acidity = 5.25. However, even thought these two variables are out of the mean values, they stil range between 0-10, which means that they should not be outliers.
-
-(Shows a value of 8.33 for Body when Acidity is 7.08 - even thought is a high value for body when compared with the rest of the variable but it is still within the correct range).
+To better understand this outliers, it is necessary to use the boxplot and minimum fucntions below presented.
 
 Moreover, the geom_point output does not present any outlier and shows that Flavor-Aroma and Acidity-Aftertaste have a positive correlation between them.
+
+```{r}
+# AROMA VARIABLE
+Aroma_boxplot <- boxplot(coffee_new_1$Aroma, plot = F)
+Aroma_threshold <- min(Aroma_boxplot$out)
+Aroma_threshold # value of the possible outlier for aroma is 5.08
+
+# ACIDITY VARIABLE
+Acidity_boxplot <- boxplot(coffee_new_1$Acidity, plot = F)
+Acidity_threshold <- min(Acidity_boxplot$out)
+Acidity_threshold # value of the possible outlier for aroma is 5.25
+
+# BODY VARIABLE
+Body_boxplot <- boxplot(coffee_new_1$Body, plot = F)
+Body_threshold <- min(Body_boxplot$out)
+Body_threshold # value of the possible outlier for aroma is 6.33
+
+# subset fuction to extract the possible outliers
+subset(coffee_new_1, Aroma == 5.08)
+subset(coffee_new_1, Acidity == 5.25)
+subset(coffee_new_1, Body == 6.33)
+```
+
+The first one, happens when  Aroma = 5.08 and Acidity = 5.25. However, even thought these two variables are out of the mean values, they stil range between 0-10, which means that they should not be outliers.
+
+(Shows a value of 6.33 for Body when Acidity is 7.08 - even thought is a high value for body when compared with the rest of the variable but it is still within the correct range).
 
 
 # 7 - Cupper.Points and Clean.Cup
@@ -562,6 +592,8 @@ Furthermore, as the clean.cup variable corresponds to a coffee free of taints an
 ggplot(coffee_new_1, aes(Moisture)) + geom_histogram(binwidth = 0.10)
 
 table(coffee_new_1$Moisture)
+
+# SHOULD WE REMOVE ALL 0 FROM THIS VARIABLE AS THEY ARE OUTLIERS ?
 ```
 
 The ggplot output shows that this variable does not present any outlier - most coffee beans have a 0.1 level of moisture.
@@ -579,6 +611,26 @@ ggplot(coffee_new_1, aes(Category.Two.Defects)) + geom_histogram(binwidth = 10)
 ```
 
 I do not really understand what these two categories are - could not find anything good on the internet.
+Therefore, both variables need further investigation. 
+
+```{r}
+ggplot(coffee_new_1, aes(Category.One.Defects, Category.Two.Defects)) + geom_boxplot()
+```
+
+ggplot output shows many outliers for the Category.Two.Defects variable - needs further investigation.
+
+```{r}
+# boxplot to identify all these outliers
+category_boxplot <- boxplot(coffee_new_1$Category.Two.Defects, plot = F)
+
+# minimum function will set one outlier as the first outlier, which means that all numbers above that one will be considered to be outliers
+category_threshold <- min(category_boxplot$out)
+
+# function to remove the previously identified outliers
+dataset_clean <- coffee_new_1[coffee_new_1$Category.Two.Defects< min(category_boxplot$out), ]
+dataset_clean
+```
+
 
 
 # 4. Exploratory Data Analysis
