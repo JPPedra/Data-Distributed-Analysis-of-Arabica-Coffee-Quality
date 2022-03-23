@@ -323,6 +323,18 @@ coffee_new_1 <- na.omit(coffee_new_1)
 
 - Maybe here we can show the visual representation of before and after cleaning the data
 
+data transformation - Min- Max Normalisation
+```{r}
+coffee_new_1 <- apply(coffee_new[ ,c(-1,-4,-17,-18,-19) ], 2, MinMax)
+coffee_new_1 <- as.data.frame(coffee_new_1)
+colnames(coffee_new)
+
+coffee_new_1$Country.of.Origin <- coffee_new$Country.of.Origin
+coffee_new_1$Processing.Method <- coffee_new$Processing.Method
+coffee_new_1$Category.One.Defects <- coffee_new$Category.One.Defects
+coffee_new_1$Quakers <- coffee_new$Quakers
+coffee_new_1$Category.Two.Defects <- coffee_new$Category.Two.Defects
+```
 
 # Identify and Remove Outliers
 
