@@ -62,7 +62,7 @@ library(ggplot2)
 ## 3.1 Loading the data 
 
 ```{r}
-coffee <- read.csv("data/Coffee-modified.csv")
+coffee <- read.csv("Coffee-modified.csv")
 ```
 
 
@@ -83,7 +83,7 @@ summary(coffee)
   - using 'stringAsFactor = T'
 - By doing this, we can also see other details that we will help us to decide which attributes are redundant or irrelavent for our research question. 
 ```{r}
-coffee_fac_lev <- read.csv("data/Coffee-modified.csv", stringsAsFactors = T)
+coffee_fac_lev <- read.csv("Coffee-modified.csv", stringsAsFactors = T)
 str(coffee_fac_lev)
 summary(coffee_fac_lev)
 ```
@@ -154,27 +154,24 @@ colSums(coffee_new_1 == "")
 
 1- Species should be categorical / correct (many wrong imputed values)
 2 - Country.of.Origin should be categorical / correct 
-3 - Altitude should be integer / incorrect as it is categorical
-4 - Number.of.Bags should be integer / incorrect as it is categorical
-5 - Bag.Weight should be integer / incorrect as it is categorical
-6 - Grading.Date should be integer / incorrect as it is categorical - maybe change the format to only numbers ?
-7 - Processing.Method should be factor / incorrect 
-8 - Aroma should be double(numerical) / incorrect as it is categorical
-9 - Flavor should be double(numerical) / incorrect as it is categorical
-10 - Aftertaste should be double(numerical) / incorrect as it is categorical
-11 - Acidity should be double(numerical) / incorrect as it is categorical
-12 - Body should be double(numerical) / correct
-13 - Balance should be double(numerical) / correct
-14 - Uniformity should be double(numerical) / correct
-15 - Clean.Cup should be double(numerical) / correct
-16 - Sweetness should be double(numerical) / correct
-17 - Cupper.Points should be double(numerical) / incorrect as it is categorical
-18 - Total.Cup.Points should be double(numerical) / incorrect as it is categorical
-19 - Moisture should be double(numerical) / incorrect as it is categorical
-20 - Category.One.Defects should be factor / incorrect as it is categorical
-21 - Quakers should be factor / incorrect as it is categorical - it has one wrong input, maybe delete that 
-22 - Color should be categorical / correct 
-23 - Category.Two.Defects should be integer / correct - maybe check if this should be factor if it corresponds to how good the quality is 
+3 - Number.of.Bags should be integer / incorrect as it is categorical
+4 - Bag.Weight should be integer / incorrect as it is categorical
+5 - Processing.Method should be factor / incorrect 
+6 - Aroma should be double(numerical) / incorrect as it is categorical
+7 - Flavor should be double(numerical) / incorrect as it is categorical
+8 - Aftertaste should be double(numerical) / incorrect as it is categorical
+9 - Acidity should be double(numerical) / incorrect as it is categorical
+10 - Body should be double(numerical) / correct
+11 - Balance should be double(numerical) / correct
+12 - Uniformity should be double(numerical) / correct
+13 - Clean.Cup should be double(numerical) / correct
+14 - Sweetness should be double(numerical) / correct
+15 - Cupper.Points should be double(numerical) / incorrect as it is categorical
+16 - Total.Cup.Points should be double(numerical) / incorrect as it is categorical
+17 - Moisture should be double(numerical) / incorrect as it is categorical
+18 - Category.One.Defects should be double / incorrect as it is categorical
+19 - Quakers should be categorical / correct
+20 - Category.Two.Defects should be integer / correct
 
 
 Perform data type conversion 
@@ -349,6 +346,18 @@ coffee_new_1["Country.of.Origin"][coffee_new_1["Country.of.Origin"] == "Tanzania
 
 Table function shows that the variable country has one value for "Cote d?Ivoire". This country corresponds to Côte d'Ivoire and it might have been wrongly imputed. Moreover, the same happens with "Tanzania, United Republic Of" that should be United Republic of Tanzania.
 
+Moreover, it is possible to investigate which countries produce more coffee - with the head, count and ggplot functions, as presented below. 
+
+```{r}
+head(coffee_new_1%>%
+  count(Country.of.Origin)%>%
+  arrange(desc(n)), 8)%>%
+  ggplot(aes(x = n, y = reorder(Country.of.Origin, n))) + geom_bar(stat = "identity", fill = "#0072B2") + 
+  labs(x = "Country", y = "Coffee Produced") + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+                                          panel.background = element_blank(), axis.line = element_line(colour = "pink"))
+```
+
+The output shows that Mexico, Guatemala and Colombia are the countries that produce more quantities of coffee.
 
 # 2- Number.of.Bags 
 
@@ -429,6 +438,28 @@ ggplot(coffee_new_1, aes(Processing.Method)) + geom_bar(fill="steelblue") + coor
 
 The output shows no outliers for the Processing.Method variable - it also shows that both NA was correctly replaced by "Other".
 Moreover, the output also shows that "Washed/Wet" is the most used processing method and that "Pulped natural" is the least used.
+
+Furthermore, it is crutial to investigate which processing method is used the most and the least - with the countries that produce more coffee (as previously investigated before)
+
+```{r}
+
+coffee_new_1%>%
+  filter(Country.of.Origin %in% c(coffee_new_1%>%
+                                    count(Country.of.Origin)%>%
+                                    filter(n >25)%>%
+                                    pull(Country.of.Origin)))%>%
+  filter(Processing.Method %in% c('Washed / Wet', 'Natural / Dry'))%>%
+  count(Country.of.Origin, Processing.Method)%>%
+  mutate(country = factor(Country.of.Origin, levels = c("Mexico", "Guatemala", "Colombia", "Brazil", 
+                                                        "Taiwan", "United States (Hawaii)", "Honduras", "Costa Rica")))%>%
+  ggplot(aes(x = country, y = n, fill = reorder(Processing.Method,-n))) + geom_col() +
+  labs(x = 'Number of Coffee',
+       y = 'Country', fill = 'Process Method') + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+                                                       panel.background = element_blank(), axis.line = element_line(colour = "black")) + 
+  scale_fill_manual(values=c("azure3","#0072B2"))
+```
+
+The output shows that Natural/Dry processing methods are mostly used in Brazil. The plot also shows that Washed/Wet processing methods are mostly used in Countries like Mexico, Guatemala and Colombia - as these countries produce more coffee, it is possible to conclude that Washed and Wet processing methods produce better resutls.
 
 
 # 5 -  Total.Cup.Points - score coffee on a standardized scale, from 0 to 100.
@@ -585,7 +616,7 @@ The ggplot output shows that this variable does not present any outlier - most c
 
 # 8 - Category.One.Defects and Category.Two.Defects
 
-Bean defects of Category One are rare, as are Quakers.
+According to Hetzel (2022), bean defects of Category One are rare, as are Quakers - imperfections in the coffee quality that affect its characteristics like Aroma, Acidity, etc.
 Bean defects of Category Two are more common and the distribution appears to be approximately log-normal.
 
 ```{r}
