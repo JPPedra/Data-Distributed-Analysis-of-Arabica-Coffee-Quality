@@ -512,9 +512,12 @@ Moreover, the output also shows that "Washed/Wet" is the most used processing me
 # 5 -  Total.Cup.Points - score coffee on a standardized scale, from 0 to 100.
 
 This variable should range from 0 to 100 and, for a better quality coffee, it should have a value between 80 to 90 (Authentic Coffee Co., 2022)
+Basically, it represents an overall quality score for coffee.
 
 ```{r}
 aggregate(coffee_new_1$Total.Cup.Points, list(coffee_new_1$Country.of.Origin), FUN=mean) 
+
+ggplot(coffee_new_1, aes(Total.Cup.Points)) + geom_histogram(binwidth = 4)
 ```
 
 The output shows an average of Total.Cup.Points similar to all the countries in this dataset. This means that there are not potential outliers for the Total.Cup.Points variable.
@@ -532,22 +535,67 @@ others. They also grade each one of these factors in order to get the final scor
 Distribution of this variables is presented below.
 
 ```{r}
-# Plot function to investigate the distribution of each numerical variables and their relationship.
-ggplot(coffee_new_1, aes(Aroma, Flavor)) + geom_point()
-ggplot(coffee_new_1, aes(Aftertaste, Acidity)) + geom_point()
-ggplot(coffee_new_1, aes(Body, Balance)) + geom_point()
-ggplot(coffee_new_1, aes(Uniformity, Sweetness)) + geom_point()
-
-
 # the variable was not previously converted and it should be numeric type.
 coffee_new_1$Sweetness <- as.numeric(coffee_new_1$Sweetness)
 
 # the variable was not previously converted and it should be numeric type.
 coffee_new_1$Cupper.Points <- as.numeric(coffee_new_1$Cupper.Points)
+
+
+# Plot (geo point) function to investigate the distribution of each numerical variables and identify possible outliers.
+
+
+ggplot(coffee_new, aes(x = 1:nrow(coffee_new), y = Aroma)) +      # Getting all the data points for the x and y axis 
+  geom_point(size=2, color = "goldenrod2") +
+  ggtitle("Plot of the Aroma") +
+  xlab("Observations") + ylab("Aroma") +
+  theme_classic()
+
+ggplot(coffee_new, aes(x = 1:nrow(coffee_new), y = Flavor)) +      # Getting all the data points for the x and y axis 
+  geom_point(size=2, color = "goldenrod2") +
+  ggtitle("Plot of the Flavor") +
+  xlab("Observations") + ylab("Flavor") +
+  theme_classic()
+
+ggplot(coffee_new, aes(x = 1:nrow(coffee_new), y = Aftertaste)) +      # Getting all the data points for the x and y axis 
+  geom_point(size=2, color = "goldenrod2") +
+  ggtitle("Plot of the Aftertaste") +
+  xlab("Observations") + ylab("Aftertaste") +
+  theme_classic()
+
+ggplot(coffee_new, aes(x = 1:nrow(coffee_new), y = Acidity)) +      # Getting all the data points for the x and y axis 
+  geom_point(size=2, color = "goldenrod2") +
+  ggtitle("Plot of the Acidity") +
+  xlab("Observations") + ylab("Acidity") +
+  theme_classic()
+
+ggplot(coffee_new, aes(x = 1:nrow(coffee_new), y = Body)) +      # Getting all the data points for the x and y axis 
+  geom_point(size=2, color = "goldenrod2") +
+  ggtitle("Plot of the Body") +
+  xlab("Observations") + ylab("Body") +
+  theme_classic()
+
+ggplot(coffee_new, aes(x = 1:nrow(coffee_new), y = Balance)) +      # Getting all the data points for the x and y axis 
+  geom_point(size=2, color = "goldenrod2") +
+  ggtitle("Plot of the Balance") +
+  xlab("Observations") + ylab("Balance") +
+  theme_classic()
+
+ggplot(coffee_new, aes(x = 1:nrow(coffee_new), y = Uniformity)) +      # Getting all the data points for the x and y axis 
+  geom_point(size=2, color = "goldenrod2") +
+  ggtitle("Plot of the Uniformity") +
+  xlab("Observations") + ylab("Uniformity") +
+  theme_classic()
+
+ggplot(coffee_new, aes(x = 1:nrow(coffee_new), y = Sweetness)) +      # Getting all the data points for the x and y axis 
+  geom_point(size=2, color = "goldenrod2") +
+  ggtitle("Plot of the Sweetness") +
+  xlab("Observations") + ylab("Sweetness") +
+  theme_classic()
 ```
 
 The geom_point output above represented show two possible outliers - for variables Aroma and Acidity.
-To better understand this outliers, it is necessary to use the boxplot and minimum fucntions below presented.
+To better understand this outliers, it is necessary to use the boxplot and minimum functions below presented.
 
 Moreover, the geom_point output does not present any outlier and shows that Flavor-Aroma and Acidity-Aftertaste have a positive correlation between them.
 
