@@ -643,3 +643,14 @@ dataset_clean
 
 # 4. Exploratory Data Analysis
 
+# Research question:
+
+"Given the Quality measures of the Arabica Coffee beans, can we predict the overall coffee quality score?"
+
+Regression Analysis (Target Variable - Total.Cup.Points)
+
+```{r}
+
+```
+
+
