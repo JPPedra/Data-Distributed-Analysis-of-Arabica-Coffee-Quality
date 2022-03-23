@@ -12,37 +12,34 @@ editor_options:
 
 - The Dataset is on Coffee Arabica Beans 
 - The metadata is as followed:
-| Quality Measures Metadata |   
-|    :----                  |               
-| Aroma                     |   
-| Flavor                    |   
-| Aftertaste                |   
-| Acidity                   |   
-| Body                      |   
-| Balance                   |   
-| Uniformity                |   
-| Cup Cleanliness           |   
-| Sweetness                 |
-| Moisture                  |
-| Defects                   |
 
-| Farm Metadata     | 
-| :----             |   
-| Owner             |   
-| Country of Origin |   
-| Farm Name         |   
-| Lot Number        |
-| Mill              |
-| Company           | 
-| Altitude          |
-| Region            |
+Quality Measures Metadata    
+ - Aroma                       
+ - Flavor                       
+ - Aftertaste                   
+ - Acidity                     
+ - Body                       
+ - Balance              
+ - Uniformity              
+ - Cup Cleanliness           
+ - Sweetness            
+ - Moisture                
+ - Defects          
 
-| Bean Metadata     |
-| :----             |
-| Processing Method |
-| Color             |
-| Species (arabica) |
+Farm Metadata     
+- Owner           
+- Country of Origin    
+- Farm Name            
+- Lot Number        
+- Mill              
+- Company            
+- Altitude          
+- Region            
 
+Bean Metadata     
+- Processing Method 
+- Color             
+- Species (arabica)
 
 - Research Question: 
 "Given the quality measures of the Arabica coffee beans, can we predict where these coffees are originated from?"
@@ -65,11 +62,11 @@ library(ggplot2)
 ## 3.1 Loading the data 
 
 ```{r}
-coffee <- read.csv("Coffee-modified.csv")
+coffee <- read.csv("data/Coffee-modified.csv")
 ```
 
 
-## 3.2 Data Qaulity Check (or something like this)
+## 3.2 Data Qaulity Check, Data Cleaning and Preparation 
 
 Let's look into the structure of the data set
 ```{r}
@@ -77,75 +74,67 @@ str(coffee)
 summary(coffee)
 ```
 
--From the `summary()` and `str()` function, it seems R has processed the dataset with  35 attributes categorical variables and the rest of the 9 attributes to be numerical continuous.
-- However, this seems to be incorrect format because the in correct datatype..... e.g. ID and bla bla should be integer instead ...
-- Additionally, we can already identify errors such as missing data and possible outliers (from looking at the ranges)...
+-From the 'summary()' and 'str()' function, it seems R has processed the dataset with  35 attributes categorical variables and the rest of the 9 attributes to be numerical continuous.
+- However, this seems to be incorrect format because the in correct datatype.
+  - For example, variables such as 'Acidity' and 'Aftertaste' contains numerical observations however, has been processed as character data types.
+- Additionally, we can already identify errors such as missing data and possible outliers (from looking at the ranges from the summary function)
 
-- Lets further look into the different levels by creating an object that converts the strings into a factor. By doing this, we can also see other details that we will help us to decide which attributes are redundant or irrelavent for our research question.
-
-- The `summary()` and `str()` function shows that the dataset contains
-
-- 35 categorical/character variables
-- 9 continuous variables
-- incorrect data types
-- cant get much from `summary()` function--> use `stringAsFactor = T` to get some more insight 
-
+- Lets further look into the different levels by creating an object that converts the strings into a factor.
+  - using 'stringAsFactor = T'
+- By doing this, we can also see other details that we will help us to decide which attributes are redundant or irrelavent for our research question. 
 ```{r}
-coffee_fac_lev <- read.csv("Coffee-modified.csv", stringsAsFactors = T)
+coffee_fac_lev <- read.csv("data/Coffee-modified.csv", stringsAsFactors = T)
 str(coffee_fac_lev)
 summary(coffee_fac_lev)
 ```
 
-
 - There is alot of errors and redudant information
 - can see the amount of missings informations, etc. 
 (maybe this is where we use the validate package?)
-- As a results, in order to answer our research, we would only need the following variables....
 
-----
-à	ID
-à	Owner
-à	Farm Name
-à	Lot Number
-à	Mill 
-à	ICO Number
-à	Company
-à	Region
-à	Producer
-à	In country Partner
-à	Harvest Year
-à	Owner 1
-à	Expiration
-à	Certification Body
-à	certification address 
-à	Certification number
-à	Unit of measurements
-^^ this is needs to be fixed accordingly
+- As a results, in order to answer our research, we will subset the dataset to contain the following variables: 
+  - Country.of.Origin       
+  - Number.of.Bags               
+  - Bag.Weight                                   
+  - Processing.Method                             
+  - Aroma                                         
+  - Flavor                                        
+  - Aftertaste                                    
+  - Acidity                                       
+  - Body                                          
+  - Balance                                       
+  - Uniformity                                    
+  - Clean.Cup                                     
+  - Sweetness                                     
+  - Cupper.Points                                 
+  - Total.Cup.Points                              
+  - Moisture                                      
+  - Category.One.Defects                          
+  - Quakers                                       
+  - Category.Two.Defects  
 
-----
-
-```{r}
+- Will now subset the dataset
+```{r} 
+# Lets get the column names
 colnames(coffee)
 
-## should get rid of (processing methods), color, and species as these are associated with the bean metadata and not the part of the quality of the coffee, plus they have alot of missing rows
-
+# Are subsetting and removing the following columns mainly because all these variables had missing variables and would not help in answering our research question
 coffee_new <- coffee %>%
   select(-c( ## removing data regarding the Farm 
             "Owner", "Farm.Name", "Lot.Number", "Mill", "ICO.Number",
             "Company","Region","Producer","In.Country.Partner","Harvest.Year","Owner.1","Variety", "Expiration",
             "Certification.Body","Certification.Address","Certification.Contact","unit_of_measurement",
             ## removing data regard the bean
-            "Color", "Species", "Altitude", "altitude_low_meters", "altitude_high_meters", "altitude_mean_meters", "Grading.Date"
+            "Color", "Species", "Altitude", "altitude_low_meters", "altitude_high_meters", "altitude_mean_meters", "ID", "Grading.Date"
             )
          )
+# Let check the new changes
 colnames(coffee_new)
 str(coffee_new)
 summary(coffee_new)
 ```
 
-
-
-- Assessing Empty Rows
+- Let's see if there are still any missing rows and if so, let remove them
 ```{r}
 summary(coffee_new)
 colSums(is.na(coffee_new))
@@ -158,30 +147,6 @@ coffee_new_1 <- coffee_new[Reduce(`&`, lapply(coffee_new,
 colSums(is.na(coffee_new_1))
 colSums(coffee_new_1 == "")
 ```
-
-Investigating further to identify the errors and see from there what is the appropriate approach
-```{r}
-table(coffee_new_1$Country.of.Origin)
-View(table(coffee_new_1$Number.of.Bags))
-table(coffee_new_1$Bag.Weight) ##
-table(coffee_new_1$Processing.Method)
-table(coffee_new_1$Aroma) ##
-table(coffee_new_1$Flavor) 
-table(coffee_new_1$Aftertaste) 
-table(coffee_new_1$Acidity) 
-table(coffee_new_1$Body)
-table(coffee_new_1$Balance)
-table(coffee_new_1$Uniformity) ##
-table(coffee_new_1$Clean.Cup) ##
-table(coffee_new_1$Sweetness) ##
-table(coffee_new_1$Cupper.Points) ##
-table(coffee_new_1$Total.Cup.Points) ##
-table(coffee_new_1$Moisture) 
-table(coffee_new_1$Category.One.Defects)
-table(coffee_new_1$Quakers) ##
-table(coffee_new_1$Category.Two.Defects)
-```
-
 
 # Variables:
 
@@ -216,18 +181,13 @@ Perform data type conversion
 - character to factors
 - character that hold numbers to double numerical 
 - excluding bag weight as the conversion would not work -> both string and "number" and the units are not the same
-
-
 ```{r}
 #converting data type as factor
 coffee_new_1$Processing.Method<-as.factor(coffee_new_1$Processing.Method)
-coffee_new_1$Quakers<-as.factor(coffee_new_1$Quakers)
-#converting data type as integer
-#coffee_new_1$Altitude<-as.integer(coffee_new_1$Altitude)
-#coffee_new_1$Bag.Weight<-as.integer(coffee_new_1$Bag.Weight)
 
 #converting data type as double numerical
 coffee_new_1$Number.of.Bags <- as.double(coffee_new_1$Number.of.Bags)
+coffee_new_1$Quakers<-as.factor(coffee_new_1$Quakers)
 
 coffee_new_1$Aroma<-as.double(coffee_new_1$Aroma)
 coffee_new_1$Flavor<-as.double(coffee_new_1$Flavor)
@@ -364,45 +324,7 @@ coffee_new_1[is.na(coffee_new_1$Bag.Weight), 10.000] = median_Bag_weight
 coffee_new_1 <- na.omit(coffee_new_1)
 ```
 
-- look out for duplicates??
-- look out for outliers
-- look out for missing data <- imputation
-- visualize and show the improvements made
-
 - Maybe here we can show the visual representation of before and after cleaning the data
-
-```{r}
-str(coffee_new_1)
-table(coffee_new_1$Number.of.Bags)
-boxplot(coffee_new_1$Number.of.Bags)
-boxplot(coffee_new_1$Bag.Weight)
-boxplot(coffee_new_1$Aroma)
-boxplot(coffee_new_1$Flavor)
-boxplot(coffee_new_1$Aftertaste)
-boxplot(coffee_new_1$Acidity)
-boxplot(coffee_new_1$Body)
-boxplot(coffee_new_1$Balance)
-boxplot(coffee_new_1$Uniformity)
-boxplot(coffee_new_1$Clean.Cup)
-boxplot(coffee_new_1$Sweetness)
-boxplot(coffee_new_1$Cupper.Points)
-boxplot(coffee_new_1$Total.Cup.Points)
-boxplot(coffee_new_1$Moisture)
-boxplot(coffee_new_1$Category.One.Defects)
-boxplot(coffee_new_1$Quakers)
-boxplot(coffee_new_1$Category.Two.Defects)
-```
-
-```{r}
-table(coffee_new_1$Aroma)
-boxplot(coffee_new_1$Aroma)
-plot(coffee_new_1$Aroma)
-```
-
-```{r}
-table(coffee_new_1$Country.of.Origin)
-```
-
 
 
 # Identify and Remove Outliers
@@ -697,47 +619,4 @@ dataset_clean
 
 
 # 4. Exploratory Data Analysis
-
-PCA
-```{r}
-str(coffee_new_1)
-colSums(is.na(coffee_new_1))
-coffee_pca <- prcomp(coffee_new_1[ ,-c(1,4,18)], center = T, scale = T)
-coffee_pca
-summary(coffee_pca)
-```
-
-```{r}
-# calculate the proportion of explained variance (PEV) from the std values
-  # sd ^ 2
-coffee_pca_var <- coffee_pca$sdev^2
-coffee_pca_var
-  # PEV is calculated by getting the variance and dividing it by the sum of the variance
-coffee_pca_PEV <- coffee_pca_var / sum(coffee_pca_var)
-coffee_pca_PEV
-
-plot(coffee_pca)
-
-opar <- par(no.readonly = TRUE)
-plot(
-  cumsum(coffee_pca_PEV),
-  ylim = c(0,1),
-  xlab = 'PC',
-  ylab = 'cumulative PEV',
-  pch = 20,
-  col = 'orange'
-)
-abline(h = 0.8, col = 'red', lty = 'dashed')
-par(opar)
-```
-
-
-
-
-
-
-
-
-
-
 
