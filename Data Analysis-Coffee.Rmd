@@ -316,8 +316,8 @@ colSums(is.na(coffee_new_1))
 median_Bag_weight <- median(coffee_new_1$Bag.Weight, na.rm = T)
 coffee_new_1[is.na(coffee_new_1$Bag.Weight), 10.000] = median_Bag_weight
 
-
 # Then drop any other NA from the character variables
+
 coffee_new_1 <- na.omit(coffee_new_1)
 ```
 
@@ -327,9 +327,9 @@ coffee_new_1 <- na.omit(coffee_new_1)
 # Identify and Remove Outliers
 
 ```{r}
+# function to understand if all the variables were correctly converted 
 str(coffee_new_1)
 ```
-
 
 # 1- Country.of.Origin 
 
@@ -359,6 +359,7 @@ head(coffee_new_1%>%
 
 The output shows that Mexico, Guatemala and Colombia are the countries that produce more quantities of coffee.
 
+
 # 2- Number.of.Bags 
 
 ```{r}
@@ -367,16 +368,14 @@ coffee_new_1$Number.of.Bags <- as.numeric(coffee_new_1$Number.of.Bags)
 
 # plot to investigate any outliers
 
-ggplot(coffee_new_1) +
-  aes(x = Number.of.Bags) +
-  geom_histogram(bins = 30L, fill = "#0c4c8a") +
-  theme_minimal()
+ggplot(coffee_new_1) + aes(x = Number.of.Bags) + geom_histogram(bins = 30L, fill = "#0c4c8a") + theme_minimal()
 
-# Use summary function to confirm the outliers - should be the maximum value for this variable 
+# Use summary function to confirm any outliers - should be the maximum value for this variable 
 summary(coffee_new_1$Number.of.Bags)
 ```
 
 The histogram shows that the variable has one possible outlier -  there seems to be one observation higher than all other observations - it should correspond to the maximum value of this variable. 
+
 To confirm this value, summary function shows a Max of 1062. 
 Is then necessary to identify the problem with 1062 number of bags, as it is a value out of the ordinary for this variable.
 
@@ -398,13 +397,6 @@ subset(coffee_new_1, Country.of.Origin == "Brazil")
 
 The output shows that the country Brazil is not set to have 1000 number of bags as the norm. This means that 1062 number of bags is an outlier and needs further investigation.
 However, for 1062 number of bags, this variable has 6 quackers, which relates to the poor quality of this set of coffee beans. This explains why there are more number of bags - less quality leads to the need to collect more beans, which leads to more bags.
-(It is probably necessary to replace this value by the mean)
-
-```{r}
-summary(coffee_new_1$Number.of.Bags)
-# maybe check the mean for the number of bags in Brazil?
-# Mean = 153.6
-```
 
 # 3 - Quakers - unripened coffee beans, often with a wrinkled surface, not darken well when roasted.
 
@@ -417,9 +409,10 @@ coffee_new_1[is.na(coffee_new_1$Quakers) , ] = 0
 
 # Quakers are not necessarily less than 3, go up and change the validate function. 
 
-ggplot(coffee_new_1, aes(Quakers)) + geom_bar(fill = "#0099F8")
+ggplot(coffee_new_1, aes(Quakers)) + geom_bar(fill = "#0099F8") + ggtitle("Quakers in the coffee quality")
 ```
-The plot shows no outliers.
+
+The plot shows no outliers. However, the frequency for level 0 of quakers is extremly high. 
 
 
 # 4 - Processing.Method
@@ -442,7 +435,6 @@ Moreover, the output also shows that "Washed/Wet" is the most used processing me
 Furthermore, it is crutial to investigate which processing method is used the most and the least - with the countries that produce more coffee (as previously investigated before)
 
 ```{r}
-
 coffee_new_1%>%
   filter(Country.of.Origin %in% c(coffee_new_1%>%
                                     count(Country.of.Origin)%>%
@@ -470,7 +462,7 @@ Basically, it represents an overall quality score for coffee.
 ```{r}
 aggregate(coffee_new_1$Total.Cup.Points, list(coffee_new_1$Country.of.Origin), FUN=mean) 
 
-ggplot(coffee_new_1, aes(Total.Cup.Points)) + geom_histogram(binwidth = 4)
+ggplot(coffee_new_1, aes(Total.Cup.Points)) + geom_histogram(binwidth = 4, color="black",fill="lightblue",linetype="dashed")
 ```
 
 The output shows an average of Total.Cup.Points similar to all the countries in this dataset. This means that there are not potential outliers for the Total.Cup.Points variable.
