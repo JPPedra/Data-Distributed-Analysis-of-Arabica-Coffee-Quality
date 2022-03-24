@@ -62,7 +62,7 @@ library(ggplot2)
 ## 3.1 Loading the data 
 
 ```{r}
-coffee <- read.csv("Coffee-modified.csv")
+coffee <- read.csv("ArabicaCoffeeBeans.csv")
 ```
 
 
@@ -83,7 +83,7 @@ summary(coffee)
   - using 'stringAsFactor = T'
 - By doing this, we can also see other details that we will help us to decide which attributes are redundant or irrelavent for our research question. 
 ```{r}
-coffee_fac_lev <- read.csv("Coffee-modified.csv", stringsAsFactors = T)
+coffee_fac_lev <- read.csv("ArabicaCoffeeBeans.csv", stringsAsFactors = T)
 str(coffee_fac_lev)
 summary(coffee_fac_lev)
 ```
@@ -333,15 +333,16 @@ MinMax <- function(x){
   tx <- (x - min(x)) / (max(x) - min(x))
   return(tx)
 }
-coffee_new_1 <- apply(coffee_new[ ,c(-1,-4,-17,-18,-19) ], 2, MinMax)
-coffee_new_1 <- as.data.frame(coffee_new_1)
-colnames(coffee_new)
+# Line 337 to line 345 are giving errors
+#coffee_new_1 <- apply(coffee_new[ ,c(-1,-4,-17,-18,-19) ], 2, MinMax)
+#coffee_new_1 <- as.data.frame(coffee_new_1)
+#colnames(coffee_new)
 
-coffee_new_1$Country.of.Origin <- coffee_new$Country.of.Origin
-coffee_new_1$Processing.Method <- coffee_new$Processing.Method
-coffee_new_1$Category.One.Defects <- coffee_new$Category.One.Defects
-coffee_new_1$Quakers <- coffee_new$Quakers
-coffee_new_1$Category.Two.Defects <- coffee_new$Category.Two.Defects
+#coffee_new_1$Country.of.Origin <- coffee_new$Country.of.Origin
+#coffee_new_1$Processing.Method <- coffee_new$Processing.Method
+#coffee_new_1$Category.One.Defects <- coffee_new$Category.One.Defects
+#coffee_new_1$Quakers <- coffee_new$Quakers
+#coffee_new_1$Category.Two.Defects <- coffee_new$Category.Two.Defects
 ```
 
 # Identify and Remove Outliers
@@ -396,8 +397,9 @@ summary(coffee_new_1$Number.of.Bags)
 
 The histogram shows that the variable has one possible outlier -  there seems to be one observation higher than all other observations - it should correspond to the maximum value of this variable. 
 
-To confirm this value, summary function shows a Max of 1062. 
-Is then necessary to identify the problem with 1062 number of bags, as it is a value out of the ordinary for this variable.
+To confirm if this value corresponds to the maximum, summary function shows a Max of 1062 - according to the histogram ploted above, this makes sense to be the outlier.
+
+Moreover, it is then necessary to identify the problem with 1062 number of bags, as it is a value out of the ordinary for this variable.
 
 ```{r}
 # boxplot function to identify the possible outlier
@@ -406,8 +408,12 @@ bags_boxplot <- boxplot(coffee_new_1$Number.of.Bags, plot = F)
 # minimum function will get this number as the minimum outlier possible
 bags_threshold <- min(bags_boxplot$out)
 
-bags_threshold # returns 1062, which is the outlier
+bags_threshold # returns 1062, which is the outlier identified in the summary function
+```
 
+To understand if 1062 is an outlier - investigate this value with subset function to understand which country has 1062 nuymber of bags.
+
+```{r}
 # function to identify which country has 1062 number of bags
 subset(coffee_new_1, Number.of.Bags == 1062.0)
 
@@ -415,8 +421,14 @@ subset(coffee_new_1, Number.of.Bags == 1062.0)
 subset(coffee_new_1, Country.of.Origin == "Brazil")
 ```
 
-The output shows that the country Brazil is not set to have 1000 number of bags as the norm. This means that 1062 number of bags is an outlier and needs further investigation.
-However, for 1062 number of bags, this variable has 6 quackers, which relates to the poor quality of this set of coffee beans. This explains why there are more number of bags - less quality leads to the need to collect more beans, which leads to more bags.
+The first subset function shows that Brazil is the country with 1062 number of bags (possible outlier)
+
+Additionally, The output shows that the country Brazil is not set to have 1000 number of bags as the norm. This means that 1062 number of bags is an outlier and needs further investigation.
+
+However, for line 735, with 1062 number of bags, this variable has 6 quackers, which relates to the poor quality of this set of coffee beans. This explains why there are more number of bags - less quality coffee leads to the need to collect more beans, which leads to more number of bags.
+
+Therefore, this coffee beans have less quality than others and that is why there are more number of bags for line 735 - which makes this instance not an outlier.
+
 
 # 3 - Quakers - unripened coffee beans, often with a wrinkled surface, not darken well when roasted.
 
@@ -432,8 +444,9 @@ coffee_new_1[is.na(coffee_new_1$Quakers) , ] = 0
 ggplot(coffee_new_1, aes(Quakers)) + geom_bar(fill = "#0099F8") + ggtitle("Quakers in the coffee quality")
 ```
 
-The plot shows no outliers. However, the frequency for level 0 of quakers is extremly high. 
+The count function output shows that the variable Quakers ranges from level 0 to 11 - being 11 maximum level of coffee roastiness. 
 
+Moreover, the geom_bar plot shows no outliers - all the values range from 0 to 11 with no extreme values. However, the plot shows an extremely high frequency for level 0 of Quakers - this does not correspond to outliers as level 0 represents missing information for this variable.
 
 # 4 - Processing.Method
 
@@ -445,7 +458,7 @@ coffee_new_1 %>% count(Processing.Method)
 coffee_new_1[is.na(coffee_new_1$Processing.Method) , ] <- "Other"
 
 # function to check for outliers 
-ggplot(coffee_new_1, aes(Processing.Method)) + geom_bar(fill="steelblue") + coord_flip()
+ggplot(coffee_new_1, aes(Processing.Method)) + geom_bar(fill="steelblue") + coord_flip() 
 
 ```
 
@@ -480,7 +493,7 @@ This variable should range from 0 to 100 and, for a better quality coffee, it sh
 Basically, it represents an overall quality score for coffee.
 
 ```{r}
-aggregate(coffee_new_1$Total.Cup.Points, list(coffee_new_1$Country.of.Origin), FUN=mean) 
+aggregate(coffee_new_1$Total.Cup.Points, list(coffee_new_1$Country.of.Origin), FUN=mean)
 
 ggplot(coffee_new_1, aes(Total.Cup.Points)) + geom_histogram(binwidth = 4, color="black",fill="lightblue",linetype="dashed")
 ```
