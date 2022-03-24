@@ -291,12 +291,18 @@ colSums(is.na(coffee_new_1))
 coffee_new$Bag.Weight <- coffee_new$Bag.Weight %>% 
   replace_na("99999 kg")
 
-# 2) check that NAs in Bag weight have been temporarily been replaced
+# 2) Check that NAs in Bag weight have been temporarily been replaced
 colSums(is.na(coffee_new)) 
 
-write.csv(coffee_new, file = "Arabica-coffee-half-modified.csv", row.names = FALSE)
+# 3) Will write and export this file in order to perform the function in PySpark 
+write.csv(coffee_new, file = "Data/Arabica-coffee-half-modified.csv", row.names = FALSE)
 
-# Will load the results from the bag weight function
+# 4) Will now load the results from the function that was performed in Pyspark
+coffee_new_1 <- read.csv("Data/ArabicaCoffeeBeansNew-UnitConversionWithString.csv")
+
+# 4) Lets have a look at the `Bag.Weight`
+table(coffee_new_1$Bag.Weight)
+str(coffee_new)
 ```
 
 ```{r}
