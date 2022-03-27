@@ -679,7 +679,6 @@ dataset_clean
 ```
 
 
-
 # 4. Exploratory Data Analysis
 
 # Research question:
@@ -688,8 +687,64 @@ dataset_clean
 
 Regression Analysis (Target Variable - Total.Cup.Points)
 
-```{r}
+EDA Plan:
 
+1 - Explore each variable individually to understand if they are normally distributed and can be used in a regression analysis 
+
+```{r}
+ggplot(coffee_new_1, aes(x=Total.Cup.Points)) + 
+  
+  geom_histogram(aes(y=..density..),      
+                 binwidth=1,
+                 colour="black", fill="goldenrod2") +
+  # Overlay with transparent (use the alpha parameter) blue density plot  
+  geom_density(alpha=.2, fill="black") +   
+  xlab("Coffee Cup Score") +
+  ggtitle("Histogram and density plot of Cup Score")
 ```
 
+The histogram output shows that Total.Cup.Points variable is normally distributed but slightly skewed to the right.
+Moreover, the output also shows that most of the coffee beans have a score between 80 and 85.
+
+Many research shows that Total.Cup.Points represents the coffee quality by gathering data from different variables: Aroma, Flavor, Aftertaste, Acidity, Body, Balance and Sweetness - therefore, these variables need further investigation 
+Note: summary function was used with this variables to investigate if they have similar values for mean and median; meaning that they might be normal distributed.
+
+
+```{r}
+# (Note: Displaying 4 histograms together at a time, is done using the par() function.)
+
+#variable's distribution with histogram - histogram is used to display the distribution of continuous variables.
+
+# the variables visual representation is divided into two parts; for a better understanding of the data.
+# Part I with variables: Aroma, Flavor, Aftertaste and Acidity.
+# Part II with variables: Body, Balance and Sweetness.
+
+par(mfrow=c(1,4)) # Part I
+
+hist(coffee_new_1$Aroma, main="Histogram of coffee Aroma",xlab="Coffee´s Aroma", ylab="")
+
+hist(coffee_new_1$Flavor, main="Histogram of coffee Flavor",xlab="Coffee´s Flavor", ylab="")
+
+hist(coffee_new_1$Aftertaste, main="Histogram of coffee Aftertaste",xlab="Coffee´s Aftertaste", ylab="")
+
+hist(coffee_new_1$Acidity, main="Histogram of coffee Acidity",xlab="Coffee´s Acidity", ylab="")
+
+par(mfrow=c(1,4)) # Part II
+
+hist(coffee_new_1$Body, main="Histogram of coffee Body",xlab= "Coffee´s Body", ylab="")
+
+hist(coffee_new_1$Balance, main="Histogram of coffee Balance",xlab="Coffee´s Balance", ylab="")
+
+hist(coffee_new_1$Sweetness, main="Histogram of coffee Sweetness",xlab="Coffee´s Sweetness", ylab="")
+
+```
+Part I output shows that the four variables are normally distributed and, Part II, shows that variables Body and Balance present a similar distribution. However, variable Sweetness does not behave the same way and needs further investigation.
+
+Furthermore, table function is used in the Sweetness variable to understand its distribution. 
+
+```{r}
+table(coffee_new_1$Sweetness)
+```
+
+Sweetness are generally highly rated with little deviation from scores of 10, as shown in the table function output.
 
