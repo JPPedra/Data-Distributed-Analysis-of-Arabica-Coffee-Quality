@@ -471,26 +471,7 @@ ggplot(coffee_new_1, aes(Processing.Method)) + geom_bar(fill="steelblue") + coor
 The output shows no outliers for the Processing.Method variable - it also shows that both NA was correctly replaced by "Other".
 Moreover, the output also shows that "Washed/Wet" is the most used processing method and that "Pulped natural" is the least used.
 
-Furthermore, it is crutial to investigate which processing method is used the most and the least - with the countries that produce more coffee (as previously investigated before)
-
-```{r}
-coffee_new_1%>%
-  filter(Country.of.Origin %in% c(coffee_new_1%>%
-                                    count(Country.of.Origin)%>%
-                                    filter(n >25)%>%
-                                    pull(Country.of.Origin)))%>%
-  filter(Processing.Method %in% c('Washed / Wet', 'Natural / Dry'))%>%
-  count(Country.of.Origin, Processing.Method)%>%
-  mutate(country = factor(Country.of.Origin, levels = c("Mexico", "Guatemala", "Colombia", "Brazil", 
-                                                        "Taiwan", "United States (Hawaii)", "Honduras", "Costa Rica")))%>%
-  ggplot(aes(x = country, y = n, fill = reorder(Processing.Method,-n))) + geom_col() +
-  labs(x = 'Number of Coffee',
-       y = 'Country', fill = 'Process Method') + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-                                                       panel.background = element_blank(), axis.line = element_line(colour = "black")) + 
-  scale_fill_manual(values=c("azure3","#0072B2"))
-```
-
-The output shows that Natural/Dry processing methods are mostly used in Brazil. The plot also shows that Washed/Wet processing methods are mostly used in Countries like Mexico, Guatemala and Colombia - as these countries produce more coffee, it is possible to conclude that Washed and Wet processing methods produce better resutls.
+Furthermore, it is crucial to investigate which processing method is used the most and the least - with the countries that produce more coffee (as previously investigated before) - this investigation will be presented below in the EDA part of the project.
 
 
 # 5 -  Total.Cup.Points - score coffee on a standardized scale, from 0 to 100.
@@ -687,9 +668,9 @@ dataset_clean
 
 Regression Analysis (Target Variable - Total.Cup.Points)
 
-EDA Plan:
+# EDA Plan:
 
-1 - Explore each variable individually to understand if they are normally distributed and can be used in a regression analysis 
+# 1 - Explore each variable individually to understand if they are normally distributed and can be used in a regression analysis 
 
 ```{r}
 ggplot(coffee_new_1, aes(x=Total.Cup.Points)) + 
@@ -746,5 +727,87 @@ Furthermore, table function is used in the Sweetness variable to understand its 
 table(coffee_new_1$Sweetness)
 ```
 
-Sweetness are generally highly rated with little deviation from scores of 10, as shown in the table function output.
+Sweetness are generally highly rated with little deviation from scores of 10, as shown in the table function output and this variable´s histogram.
+Research shows that coffee beans are known for their sweetness - Colombia, Kenya, Guatemala, Panama, and Ethiopia are the countries producing the most sweet coffee beans (Coffee, 2022, find at: https://dialupthecoffee.com/naturally-sweet-coffee/).
 
+
+Moreover, it is important to understand how variables Category.One/Two.Defects and Quakers behave - as having quakers leads to defects in coffee beans.
+
+```{r}
+ggplot(coffee_new_1, aes(Category.One.Defects)) + geom_area(stat = "bin") + ggtitle("Category One Defects")
+
+ggplot(coffee_new_1, aes(Category.Two.Defects)) + geom_area(stat = "bin") + ggtitle("Category Two Defects")
+
+ggplot(coffee_new_1, aes(Quakers)) + geom_histogram(binwidth = 0.9) + ggtitle("Coffee Quakers")
+```
+
+The output shows two things:
+1 - Category.One.Defects type of bean are rare, as are Quakers
+2 - Category.Two.Defects bean are more common and the distribution appears to be approximately log-normal.
+
+
+##### Appendix ? ahah
+
+Furthermore, it is necessary to investigate which processing method is used the most and the least - with the countries that produce more coffee, as outlined in the data cleaning stage of this project.
+
+```{r}
+coffee_new_1%>%
+  filter(Country.of.Origin %in% c(coffee_new_1%>%
+                                    count(Country.of.Origin)%>%
+                                    filter(n >25)%>%
+                                    pull(Country.of.Origin)))%>%
+  filter(Processing.Method %in% c('Washed / Wet', 'Natural / Dry'))%>%
+  count(Country.of.Origin, Processing.Method)%>%
+  mutate(country = factor(Country.of.Origin, levels = c("Mexico", "Guatemala", "Colombia", "Brazil", 
+                                                        "Taiwan", "United States (Hawaii)", "Honduras", "Costa Rica")))%>%
+  ggplot(aes(x = country, y = n, fill = reorder(Processing.Method,-n))) + geom_col() +
+  labs(x = 'Number of Coffee',
+       y = 'Country', fill = 'Process Method') + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+                                                       panel.background = element_blank(), axis.line = element_line(colour = "black")) + 
+  scale_fill_manual(values=c("azure3","#0072B2"))
+```
+
+The output shows that Natural/Dry processing methods are mostly used in Brazil. The plot also shows that Washed/Wet processing methods are mostly used in Countries like Mexico, Guatemala and Colombia - as these countries produce more coffee, it is possible to conclude that Washed and Wet processing methods produce better results.
+
+##### Appendix ?
+
+
+# 2 - analyse the continuous variables graphically against the Total.Cup.Points variable to understand if they affect that variable. If variables affect the Total.Cup.Points of coffee quality, then they should be taken into the Total.Cup.Points regression model.
+
+# Country.of.Origin
+
+```{r}
+ggplot(coffee_new_1, aes(Country.of.Origin, Total.Cup.Points)) + geom_boxplot() + coord_flip()
+```
+The output shows it impossible to find a pattern between the relationship of total cup points and country of origin.
+Ethiopian, United States and Panama appears to be generally the coffee with highest scores.
+
+
+# Processing.Method
+
+```{r}
+ggplot(coffee_new_1, aes(Processing.Method, Total.Cup.Points)) + geom_boxplot() + coord_flip()
+```
+
+The output shows that Washed/Wet processing method is the one with lowest coffee quality scores (Total Cup Points).
+Furthermore, there are no visible trends within the data as all variables have similar means, meaning, similar coffee quality scores.
+
+
+# Category.One.Defects, Category.Two.Defects and Quakers
+
+```{r}
+#plot(coffee_new_1, aes(Category.One.Defects, Total.Cup.Points))
+par(mfrow=c(1,3)) # Part II
+attach(coffee_new_1)
+plot(Total.Cup.Points, Category.One.Defects, main="Defects type I vs Coffee Score", 
+   xlab="Total.Cup.Points", ylab="Category.One.Defects", pch=19)
+
+plot(Total.Cup.Points, Category.Two.Defects, main="Defects type II vs Coffee Score", 
+   xlab="Total.Cup.Points", ylab="Category.Two.Defects", pch=19)
+
+plot(Quakers, Quakers, Total.Cup.Points="Quakers vs Coffee Score", 
+   xlab="Quakers", ylab="Total.Cup.Points", pch=19)
+```
+
+The output shows that for best coffee quality scores ( >80 Total.Cup.Points) happens when the number of defects and Quakers are low.
+Therefore, variables like Category.One.Defects, Category.Two.Defects and Quakers affect the likelihood of increasing/decreasing the variable Total.Cup.Points - and should be included in the regression model.
