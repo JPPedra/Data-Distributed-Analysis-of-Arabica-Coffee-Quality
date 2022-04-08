@@ -56,6 +56,7 @@ library(validate)
 library(plyr)
 # For Data visualisation
 library(ggplot2)
+library(magrittr)
 ```
 
 # 3. Data Cleaning and Preparation
@@ -333,14 +334,14 @@ coffee_new_1 <- na.omit(coffee_new_1)
 
 data transformation - Min- Max Normalisation
 ```{r}
-# colSums(is.na(coffee_new))
-# which(is.null(coffee_new))
+#colSums(is.na(coffee_new))
+#which(is.null(coffee_new))
 #str(coffee_new)
-
-# MinMax <- function(x){
+#
+#MinMax <- function(x){
 #  tx <- (x - min(x)) / (max(x) - min(x))
 #  return(tx)
-# }
+#}
 # Line 337 to line 345 are giving errors
 #coffee_new_1 <- apply(coffee_new[ ,c(-1,-4,-17,-18,-19) ], 2, MinMax)
 #coffee_new_1 <- as.data.frame(coffee_new_1)
@@ -453,7 +454,7 @@ Therefore, this coffee beans have less quality than others and that is why there
 # Function to get the frequency of the variable Quakers - showing 2 NAs for this variable
 # The output shows if any frequency is out of the ordinary; which allows it to identify any possible outliers.
 
-coffee_new_1 %>% count(Quakers)
+count(coffee_new_1, 'Quakers')
 
 # this function replaces NA by 0
 coffee_new_1[is.na(coffee_new_1$Quakers) , ] = 0
@@ -476,7 +477,7 @@ The plot shows no outliers as all the values range from 0 to 11 - with no extrem
 ```{r}
 # Function to get the frequency of this variable - it shows 2 missing values for this variable
 # The output shows if any frequency is out of the ordinary; which allows it to identify any possible outliers.
-coffee_new_1 %>% count(Processing.Method)
+count(coffee_new_1, 'Processing.Method')
 
 # output shows NA, this function replaces NA by "Other"
 coffee_new_1[is.na(coffee_new_1$Processing.Method) , ] <- "Other"
@@ -525,14 +526,13 @@ coffee_new_1$Sweetness <- as.numeric(coffee_new_1$Sweetness)
 # the variable was not previously converted and it should be numeric type.
 coffee_new_1$Cupper.Points <- as.numeric(coffee_new_1$Cupper.Points)
 
-
 # boxplot all the numerical variables to investigate any possible outliers.
 
-boxplot(coffee_new_1$Aroma,Flavor,Aftertaste,main = "Boxplot 1 for comparision of three numerical variables", names = c("Aroma", "Flavor", "Aftertaste"), col = c("orange","red"), border = "brown", horizontal = TRUE, notch = TRUE)
+boxplot(coffee_new_1$Aroma,coffee_new_1$Flavor,coffee_new_1$Aftertaste,main = "Boxplot 1 for comparision of three numerical variables", names = c("Aroma", "Flavor", "Aftertaste"), col = c("orange","red"), border = "brown", horizontal = TRUE, notch = TRUE)
 
-boxplot(coffee_new_1$Acidity,Body,Balance,main = "Boxplot 2 for comparision of three numerical variables", names = c("Acidity", "Body", "Balance"), col = c("blue","black"), border = "brown", horizontal = TRUE, notch = TRUE)
+boxplot(coffee_new_1$Acidity,coffee_new_1$Body,coffee_new_1$Balance,main = "Boxplot 2 for comparision of three numerical variables", names = c("Acidity", "Body", "Balance"), col = c("blue","black"), border = "brown", horizontal = TRUE, notch = TRUE)
 
-boxplot(coffee_new_1$Uniformity,Clean.Cup,Sweetness,main = "Boxplot 3 for comparision of three numerical variables", names = c("Uniformity", "Clean.Cup", "Sweetness"), col = c("red","yellow"), border = "brown", horizontal = TRUE, notch = TRUE)
+boxplot(coffee_new_1$Uniformity,coffee_new_1$Clean.Cup,coffee_new_1$Sweetness,main = "Boxplot 3 for comparision of three numerical variables", names = c("Uniformity", "Clean.Cup", "Sweetness"), col = c("red","yellow"), border = "brown", horizontal = TRUE, notch = TRUE)
 ```
 
 The boxplot output above represented shows that there is one possible outlier for variables Aroma, Acidity and Clean.Cup.
@@ -586,8 +586,8 @@ hist(coffee_new_1$Cupper.Points, main="Histogram of coffee Cupper.Points",xlab="
 hist(coffee_new_1$Clean.Cup, main="Histogram of coffee Clean.Cup",xlab="Coffee´s Clean.Cup", ylab="")
 
 # count function to confirm there are no outliers as represented in the ggplot output
-coffee_new_1 %>% count(Cupper.Points)
-coffee_new_1 %>% count(Clean.Cup)
+count(coffee_new_1, 'Cupper.Points')
+count(coffee_new_1, 'Clean.Cup')
 ```
 
 The histogram output does not present any possible outlier for these two variables.
@@ -614,8 +614,9 @@ According to Hetzel (2022), bean defects of Category One are rare, as are Quaker
 Bean defects of Category Two are more common and the distribution appears to be approximately log-normal.
 
 ```{r}
-coffee_new_1 %>% count(Category.One.Defects)
-coffee_new_1 %>% count(Category.Two.Defects)
+count(coffee_new_1, 'Category.One.Defects')
+count(coffee_new_1, 'Category.Two.Defects')
+
 
 par(mfrow=c(1,2))
 
@@ -664,16 +665,15 @@ hist(dataset_clean$Category.Two.Defects, main="Clean Histogram of coffee Categor
 ```
 
 
-
 ################ EDA ################
 # 4. Exploratory Data Analysis
 ################ EDA ################
 
 # Research question:
 
-"Given the Quality measures of the Arabica Coffee beans, can we predict the overall coffee quality score?"
+"Given the Quality measures of the Arabic Coffee beans, can we predict the overall coffee quality score?"
 
-Regression Analysis (Target Variable - Total.Cup.Points)
+Machine Learning Method in which the Target Variable is Total.Cup.Points.
 
 # EDA Plan:
 
@@ -691,12 +691,7 @@ Nevertheless, the variables presented above need further visual investigation, t
 # 1 - Explore each variable individually to understand if they are normally distributed and can be used in a Machine Learning moodel - starting by the target variable Total.Cup.Points.
 
 ```{r}
-ggplot(coffee_new_1, aes(x=Total.Cup.Points)) 
-+ geom_histogram(aes(y=..density..), 
-                 binwidth=1, 
-                 colour="black", 
-                 fill="goldenrod2") +
-  
+ggplot(coffee_new_1, aes(x=Total.Cup.Points)) + geom_histogram(aes(y=..density..), binwidth=1, colour="black", fill="goldenrod2") +
   # Overlay with transparent (use the alpha parameter) blue density plot  
   geom_density(alpha=.2, fill="black") +   
   xlab("Coffee Cup Score") +
@@ -789,6 +784,23 @@ Research shows that coffee beans are known for their sweetness - Colombia, Kenya
 
 Therefore, even if the variable does not look normal distributed, it makes sense not be.
 
+# Clean.Cup
+
+```{r}
+ggplot(coffee_new_1, aes(x=Clean.Cup)) + geom_histogram(aes(y=..density..), 
+                 binwidth=0.9, 
+                 colour="black", 
+                 fill="goldenrod2") +
+  
+  # Overlay with transparent (use the alpha parameter) blue density plot  
+  geom_density(alpha=.2, fill="black") +   
+  xlab("Coffee Clean.Cup") +
+  ggtitle("Histogram and density plot of Coffee Clean.Cup")
+
+count(coffee_new_1, 'Clean.Cup')
+```
+
+The histogram and count function show that the variable is not normal distributed. Hence, cannot be used in the machine learning method.
 
 # 2 - analyse the continuous variables graphically against the Total.Cup.Points variable to understand if they affect that variable. If variables affect the Total.Cup.Points of coffee quality, then they should be taken into the Total.Cup.Points regression model.
 
@@ -808,12 +820,22 @@ Ethiopian, United States and Panama appears to be generally the coffee with high
 Moreover, the variable Country.of.Origin can also be used to investigate which countries produce more coffee - with the head, count and ggplot functions, as presented below. 
 
 ```{r}
-head(coffee_new_1%>%
-count(Country.of.Origin)%>%
-arrange(desc(n)), 8)%>%
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+require(graphics)
+require("rgdal") 
+require("maptools")
+require("ggplot2")
+require("plyr")
 
-  
-ggplot(aes(x = n, y = reorder(Country.of.Origin, n))) + geom_bar(stat = "identity", fill = "#0072B2") + labs(x = "Coffee Produced", y = "Country of Origin") + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "pink"))
+ggplot(coffee_new_1, aes(Country.of.Origin, Processing.Method)) + geom_count()
+
+#head(coffee_new_1%>% 
+       #count(Country.of.Origin)%>% 
+       #arrange(desc(n)), 8)%>%
+
+  #ggplot(aes(x = n, y = reorder(coffee_new_1$Country.of.Origin, Processing.Method))) + geom_bar(stat = "identity", fill = "#0072B2") + labs(x = "Coffee Produced", y = "Country of Origin") + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "pink"))
 ```
 
 The output shows that Mexico, Guatemala and Colombia are the countries that produce more quantities of coffee.
@@ -824,6 +846,7 @@ The output shows that Mexico, Guatemala and Colombia are the countries that prod
 Furthermore, it is necessary to investigate which processing method is used the most and the least - with the countries that produce more coffee, as outlined in the data cleaning stage of this project - this investigation will be presented below in the EDA part of the project.
 
 ```{r}
+library(tidyverse)
 coffee_new_1%>%
   filter(Country.of.Origin %in% c(coffee_new_1%>%
                                     count(Country.of.Origin)%>%
@@ -832,9 +855,9 @@ coffee_new_1%>%
   filter(Processing.Method %in% c('Washed / Wet', 'Natural / Dry'))%>%
   count(Country.of.Origin, Processing.Method)%>%
   mutate(country = factor(Country.of.Origin, levels = c("Mexico", "Guatemala", "Colombia", "Brazil", 
-                                                        "Taiwan", "United States (Hawaii)", "Honduras", "Costa Rica")))%>%
-  ggplot(aes(x = country, y = n, fill = reorder(Processing.Method,-n))) + geom_col() +
-  labs(x = 'Number of Coffee',
+                                                        "Taiwan", "Hawaii", "Honduras", "Costa Rica")))%>%
+  ggplot(aes(x = country, y = n, fill = reorder(Processing.Method,-n))) + geom_col() + 
+  labs(x = 'Number of Coffee', 
        y = 'Country', fill = 'Process Method') + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
                                                        panel.background = element_blank(), axis.line = element_line(colour = "black")) + 
   scale_fill_manual(values=c("azure3","#0072B2"))
@@ -843,7 +866,7 @@ coffee_new_1%>%
 The output shows that Natural/Dry processing methods are mostly used in Brazil. The plot also shows that Washed/Wet processing methods are mostly used in Countries like Mexico, Guatemala and Colombia - as these countries produce more coffee, it is possible to conclude that Washed and Wet processing methods produce better results.
 
 
-# Processing.Method
+# Processing.Method vs Total.Cup.Points
 
 ```{r}
 ggplot(coffee_new_1, aes(Processing.Method, Total.Cup.Points)) + geom_boxplot() + coord_flip()
@@ -856,6 +879,7 @@ Furthermore, there are no visible trends within the data as all variables have s
 # Category.One.Defects, Category.Two.Defects and Quakers
 
 ```{r}
+# The plot below shos too much information - it is not necessary to plot the data like this.
 #plot(coffee_new_1, aes(Category.One.Defects, Total.Cup.Points))
 par(mfrow=c(1,3)) # Part II
 attach(coffee_new_1)
@@ -872,16 +896,14 @@ plot(Quakers, Quakers, Total.Cup.Points="Quakers vs Coffee Score",
 The output shows that for best coffee quality scores ( >80 Total.Cup.Points) happens when the number of defects and Quakers are low.
 Therefore, variables like Category.One.Defects, Category.Two.Defects and Quakers affect the likelihood of increasing/decreasing the variable Total.Cup.Points - and should be included in the regression model.
 
-
-# Moisture
+# Moisture vs Total.Cup.Points
 
 ```{r}
 attach(coffee_new_1)
 plot(Total.Cup.Points, Moisture, main="Moisture Coffee Score", 
    xlab="Total.Cup.Points", ylab="Moisture", pch=19)
 ```
+
 The output shows that a relationship between variables Total.Cup.Points and Moisture does not exist.
-
-
 
 
