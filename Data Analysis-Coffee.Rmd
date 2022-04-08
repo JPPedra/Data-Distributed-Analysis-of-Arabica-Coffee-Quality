@@ -333,14 +333,14 @@ coffee_new_1 <- na.omit(coffee_new_1)
 
 data transformation - Min- Max Normalisation
 ```{r}
-colSums(is.na(coffee_new))
-which(is.null(coffee_new))
-str(coffee_new)
+# colSums(is.na(coffee_new))
+# which(is.null(coffee_new))
+#str(coffee_new)
 
-MinMax <- function(x){
-  tx <- (x - min(x)) / (max(x) - min(x))
-  return(tx)
-}
+# MinMax <- function(x){
+#  tx <- (x - min(x)) / (max(x) - min(x))
+#  return(tx)
+# }
 # Line 337 to line 345 are giving errors
 #coffee_new_1 <- apply(coffee_new[ ,c(-1,-4,-17,-18,-19) ], 2, MinMax)
 #coffee_new_1 <- as.data.frame(coffee_new_1)
