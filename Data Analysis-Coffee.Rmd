@@ -42,9 +42,7 @@ Bean Metadata
 - Species (arabica)
 
 - Research Question: 
-"Given the quality measures of the Arabica coffee beans, can we predict where these coffees are originated from?"
-"Given the Quality measures of the Arabica Coffee beans, can we predict how these coffee bean was processed?"
-"Given the Quality measures of the Arabica Coffee beans, can we predict the overall coffee quality score?"
+"Given the attributes of the Arabica Coffee beans, can we predict the overall coffee quality score?"
 
 # 2. Loading the Libraries
 
