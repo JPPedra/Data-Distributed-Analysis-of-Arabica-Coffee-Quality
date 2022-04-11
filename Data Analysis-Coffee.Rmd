@@ -112,6 +112,8 @@ summary(coffee_fac_lev)
   - Quakers                                       
   - Category.Two.Defects  
 
+## 3.3 Subsetting the Dataset
+
 - Will now subset the dataset
 ```{r} 
 # Lets get the column names
@@ -132,7 +134,7 @@ colnames(coffee_new)
 str(coffee_new)
 summary(coffee_new)
 ```
-
+## 3.4 Data Type Conversion and Dealing with Missing Information
 - Let's see if there are still any missing rows and if so, let remove them
 ```{r}
 summary(coffee_new)
@@ -146,32 +148,6 @@ coffee_new_1 <- coffee_new[Reduce(`&`, lapply(coffee_new,
 colSums(is.na(coffee_new_1))
 colSums(coffee_new_1 == "")
 ```
-
-# Variables:
-
-# what variables are in the correct data type?
-
-1- Species should be categorical / correct (many wrong imputed values)
-2 - Country.of.Origin should be categorical / correct 
-3 - Number.of.Bags should be integer / incorrect as it is categorical
-4 - Bag.Weight should be integer / incorrect as it is categorical
-5 - Processing.Method should be factor / incorrect 
-6 - Aroma should be double(numerical) / incorrect as it is categorical
-7 - Flavor should be double(numerical) / incorrect as it is categorical
-8 - Aftertaste should be double(numerical) / incorrect as it is categorical
-9 - Acidity should be double(numerical) / incorrect as it is categorical
-10 - Body should be double(numerical) / correct
-11 - Balance should be double(numerical) / correct
-12 - Uniformity should be double(numerical) / correct
-13 - Clean.Cup should be double(numerical) / correct
-14 - Sweetness should be double(numerical) / correct
-15 - Cupper.Points should be double(numerical) / incorrect as it is categorical
-16 - Total.Cup.Points should be double(numerical) / incorrect as it is categorical
-17 - Moisture should be double(numerical) / incorrect as it is categorical
-18 - Category.One.Defects should be double / incorrect as it is categorical
-19 - Quakers should be categorical / correct
-20 - Category.Two.Defects should be integer / correct
-
 
 Perform data type conversion 
 - character to factors
@@ -245,39 +221,12 @@ summary(out)
 plot(out)
 ```
 
-
-```{r}
-#count NA values
-coffee_NA_count <- apply(is.na(coffee_new_1), 2, sum)
-coffee_NA_count
-# the percentage of NA per variable
-coffee_NA_perc <- coffee_NA_count / dim(coffee_new_1)[1] * 100
-coffee_NA_perc
-```
-
 - Then apply NA imputation to all numerical variables
 ```{r}
 # impute missing values by replacement with the mean value
   # using mutate_if function and if else condition to find any NAs in any numerical columns and replace it with their according median
 coffee_new_1 <- coffee_new_1 %>% 
   mutate_if(is.numeric, function(x) ifelse(is.na(x), median(x, na.rm = T), x))
-colSums(is.na(coffee_new_1))
-
-median_Body <- median(coffee_new_1$Body, na.rm = T)
-coffee_new_1[is.na(coffee_new_1$Body), 7.500] = median_Body
-# 
-# median_Balance <- median(coffee_new_1$Balance, na.rm = T)
-# coffee_new_1[is.na(coffee_new_1$Balance), 7.500] = median_Balance
-# 
-# median_Sweetness <- median(coffee_new_1$Sweetness, na.rm = T)
-# coffee_new_1[is.na(coffee_new_1$Sweetness), 10.000] = median_Sweetness
-# 
-# median_Uniformity <- median(coffee_new_1$Uniformity, na.rm = T)
-# coffee_new_1[is.na(coffee_new_1$Uniformity), 10.00] = median_Uniformity
-# 
-# median_Clean.Cup <- median(coffee_new_1$Clean.Cup, na.rm = T)
-# coffee_new_1[is.na(coffee_new_1$Clean.Cup), 10.000] = median_Clean.Cup
-
 colSums(is.na(coffee_new_1))
 ```
 
@@ -294,10 +243,10 @@ coffee_new$Bag.Weight <- coffee_new$Bag.Weight %>%
 # 2) Check that NAs in Bag weight have been temporarily been replaced
 colSums(is.na(coffee_new)) 
 
-# 3) Will write and export this file in order to perform the function in PySpark 
+# 3) Will write and export this file in order to perform the function in PySpark (Hawra's HPCI technique)
 write.csv(coffee_new, file = "Data/Arabica-coffee-half-modified.csv", row.names = FALSE)
 
-# 4) Will now load the results from the function that was performed in Pyspark
+# 4) Will now load the results from the function that was performed in Pyspark (Hawra's HPCI technqiue)
 coffee_new_1 <- read.csv("Data/ArabicaCoffeeBeansNew-UnitConversionWithString.csv")
 
 # 4) Lets have a look at the `Bag.Weight`
@@ -329,30 +278,7 @@ coffee_new_1 <- na.omit(coffee_new_1)
 
 - Maybe here we can show the visual representation of before and after cleaning the data
 
-data transformation - Min- Max Normalisation
-```{r}
-#colSums(is.na(coffee_new))
-#which(is.null(coffee_new))
-#str(coffee_new)
-#
-#MinMax <- function(x){
-#  tx <- (x - min(x)) / (max(x) - min(x))
-#  return(tx)
-#}
-# Line 337 to line 345 are giving errors
-#coffee_new_1 <- apply(coffee_new[ ,c(-1,-4,-17,-18,-19) ], 2, MinMax)
-#coffee_new_1 <- as.data.frame(coffee_new_1)
-#colnames(coffee_new)
-
-#coffee_new_1$Country.of.Origin <- coffee_new$Country.of.Origin
-#coffee_new_1$Processing.Method <- coffee_new$Processing.Method
-#coffee_new_1$Category.One.Defects <- coffee_new$Category.One.Defects
-#coffee_new_1$Quakers <- coffee_new$Quakers
-#coffee_new_1$Category.Two.Defects <- coffee_new$Category.Two.Defects
-```
-
-
-# Identify and Remove Outliers
+## 3.5 Identifying and Dealing with Outliers
 
 This section investigates whether the current dataset has any outliers. 
 
@@ -777,11 +703,9 @@ It is also important to investigate how these variables relate between themselve
 This to understand the relationship between the numerical variables.
 
 ```{r}
-qplot(Aroma, Flavor,  data = coffee_new_1, colour = Total.Cup.Points)
+plot(Aroma, Flavor,  data = coffee_new_1, colour = Total.Cup.Points)
 qplot(Aftertaste, Acidity, data = coffee_new_1, colour = Total.Cup.Points)
 qplot(Acidity, Body, data = coffee_new_1, colour = Total.Cup.Points)
-
-#qplot(Balance,Uniformity, data = coffee_new_1, colour = Total.Cup.Points)
 qplot(Clean.Cup,Uniformity, data = coffee_new_1, colour = Total.Cup.Points)
 qplot(Cupper.Points, Clean.Cup, data = coffee_new_1, colour = Total.Cup.Points)
 qplot(Balance,Uniformity, data = coffee_new_1, colour = Total.Cup.Points)
