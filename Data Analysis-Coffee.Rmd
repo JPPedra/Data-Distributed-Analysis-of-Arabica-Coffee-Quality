@@ -90,7 +90,6 @@ summary(coffee_fac_lev)
 
 - There is alot of errors and redudant information
 - can see the amount of missings informations, etc. 
-(maybe this is where we use the validate package?)
 
 - As a results, in order to answer our research, we will subset the dataset to contain the following variables: 
   - Country.of.Origin       
