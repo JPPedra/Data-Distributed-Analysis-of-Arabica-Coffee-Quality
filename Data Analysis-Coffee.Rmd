@@ -276,8 +276,6 @@ coffee_new_1[is.na(coffee_new_1$Bag.Weight), 10.000] = median_Bag_weight
 coffee_new_1 <- na.omit(coffee_new_1)
 ```
 
-- Maybe here we can show the visual representation of before and after cleaning the data
-
 ## 3.5 Identifying and Dealing with Outliers
 
 This section investigates whether the current dataset has any outliers. 
