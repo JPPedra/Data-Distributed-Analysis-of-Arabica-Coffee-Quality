@@ -698,16 +698,8 @@ Therefore, both variables Sweetness and Clean.Cup need further investigation and
 
 
 It is also important to investigate how these variables relate between themselves, taking into consideration the total.cup.points.
-This to understand the relationship between the numerical variables.
+This to understand the relationship between the numerical variables....
 
-```{r}
-plot(Aroma, Flavor,  data = coffee_new_1, colour = Total.Cup.Points)
-qplot(Aftertaste, Acidity, data = coffee_new_1, colour = Total.Cup.Points)
-qplot(Acidity, Body, data = coffee_new_1, colour = Total.Cup.Points)
-qplot(Clean.Cup,Uniformity, data = coffee_new_1, colour = Total.Cup.Points)
-qplot(Cupper.Points, Clean.Cup, data = coffee_new_1, colour = Total.Cup.Points)
-qplot(Balance,Uniformity, data = coffee_new_1, colour = Total.Cup.Points)
-```
 
 ADD EXPLANATION OF THE PLOTS ABOVE
 
