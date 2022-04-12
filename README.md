@@ -59,6 +59,7 @@ This dataset, `ArabicaCoffeeBeans.csv`, which can be found in the Data folder, c
 - Certification.Address
 - Certification.Contact
 
+## Subsetted Dataset for Exploratory Data Analysis:
 From the Data Cleaning and Preparation, the dataset has been subsetted and the following attributes is used to exploratory data analysis:
   
 - Country.of.Origin       
