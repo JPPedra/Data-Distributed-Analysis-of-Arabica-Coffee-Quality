@@ -15,13 +15,20 @@ This dataset, `ArabicaCoffeeBeans.csv`, which can be found in the Data folder, c
 - Mill
 - ICO Number 
 - Company
-- Altitude (including the high and low altitude)
+- Altitude 
+- altitude_low_meters
+- altitude_high_meters
+- altitude_mean_meters
+- unit_of_measurement
 - Region
 - Producer
 - Number.of.Bags
 - Bag Weight
 - In.Country.Partner
+- Harvest.Year
+- Grading.Date
 - Owner
+- Owner.1
 - Variety
 - Processing.Method
 
@@ -29,6 +36,7 @@ This dataset, `ArabicaCoffeeBeans.csv`, which can be found in the Data folder, c
 - Aroma
 - Flavor
 - Aftertaste
+- Acidity
 - Body
 - Balance
 - Uniformity
@@ -39,12 +47,36 @@ This dataset, `ArabicaCoffeeBeans.csv`, which can be found in the Data folder, c
 
 ## Green Analysis
 - Moisture
-- Both Category.One.Defects and Category.Two.Defects
+- Category.One.Defects 
+- Category.Two.Defects
 - Quakers
 - Color
+- Species
 
 ## Certification Information
 - Expiration
 - Certification.Body
 - Certification.Address
 - Certification.Contact
+
+From the Data Cleaning and Preparation, the dataset has been subsetted and the following attributes is used to exploratory data analysis:
+  
+- Country.of.Origin       
+- Number.of.Bags               
+- Bag.Weight                                   
+- Processing.Method                             
+- Aroma                                         
+- Flavor                                        
+- Aftertaste                                    
+- Acidity                                       
+- Body                                          
+- Balance                                       
+- Uniformity                                    
+- Clean.Cup                                     
+- Sweetness                                     
+- Cupper.Points                                 
+- Total.Cup.Points                              
+- Moisture                                      
+- Category.One.Defects                          
+- Quakers                                       
+- Category.Two.Defects
