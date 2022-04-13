@@ -4,7 +4,7 @@ This GitHub Repository contains the group work performed for the Data Distribute
 
 This project will shows data analysis performed on Arabica Coffee Beans dataset, which was obtained from https://www.kaggle.com/datasets/ankurchavda/coffee-beans-reviews-by-coffee-quality-institute. This dataset is from the *'Coffee Quality Institute'*.
 
-This dataset, `ArabicaCoffeeBeans.csv`, which can be found in the Data folder, contains 1319 observations and 44 attributes. The `Data Analysis-Coffee.Rmd` files shows the data analysised performed on this data set, including data cleaning, preparation and exploratory data analysis (EDA), to aid each of us to perform different predictive machine learning techinque to answer the following research questions: "Given the attributes of this dataset, can we predict the overall coffee quality score?"
+The current dataset, `ArabicaCoffeeBeans.csv`, which can be found in the Data folder, contains 1319 observations and 44 attributes. The `Data Analysis-Coffee.Rmd` files shows the data analysised performed on this data set, including data cleaning, preparation and exploratory data analysis (EDA), to aid each of us to perform different predictive machine learning techinque to answer the following research questions: "Given the attributes of this dataset, can we predict the overall coffee quality score?"
 
 # The Metadata
 
