@@ -907,32 +907,17 @@ These categories are presented below:
 
 Mutate function is used below to create these categories and represent them visually. 
 
-#```{r}
-#coffee_new_1 <- coffee_new_1%>%
-# mutate(grade = case_when(
-#   Total.Cup.Points >= 85 ~ 'Very good',
-#   Total.Cup.Points >= 80 ~ 'Good',
-#   Total.Cup.Points < 80 ~ 'Bad'
-# ))
-
-#coffee_new_1$grade <- factor(coffee_new_1$grade, levels = c('Not Special', 'Very Good', #'Excellent'))
-#
-#coffee_new_1%>%
-#  filter(Country.of.Origin %in% c(coffee_new_1%>%
-#                                    count(Country.of.Origin)%>%
-#                                    filter(n >25)%>%
-#                                    pull(Country.of.Origin)))%>%
-#count(Country.of.Origin, grade)%>%
-#  mutate(country = factor(Country.of.Origin, levels = c("Mexico", "Guatemala", "Colombia", #"Brazil", 
-#                                                        "Taiwan", "Honduras", "Costa Rica", #"Tanzania",
-#                                                        "Uganda")))%>%
-#  ggplot(aes(x = country, y = n, fill = grade)) + geom_col() + 
-#  scale_fill_manual(values=c("azure3","#0072B2", 'darkorange')) +  theme(panel.grid.major = #element_blank(), panel.grid.minor = element_blank(),
-#        panel.background = element_blank(), axis.line = element_line(colour = "black"))
-#```
+# CODE DELETED because having the processing method variable as a category would not help anzwering the reserach question.
 
 
-# Pyspark Analysis - 1732576
+# Pairplot in R --) HPCI technique - 1732576
+
+```{r}
+
+```
+
+
+# Pyspark Analysis - 1 HPCI technique + 1 Machine Learning Technique - 1732576
 
 ```{r}
 
@@ -946,5 +931,8 @@ Mutate function is used below to create these categories and represent them visu
 4- https://dailycoffeenews.com/2020/04/29/physical-analysis-of-green-coffee-what-to-measure-record-and-track/
 5- https://dialupthecoffee.com/naturally-sweet-coffee/
 6 - https://www.sovdacoffee.com/blog/2020/9/10/the-science-behind-defective-beans-and-how-they-affect-your-roast#:~:text=Quakers%20are%20coffee%20beans%20that,it%20be%20free%20of%20quakers.
-https://library.sweetmarias.com/glossary/clean-cup/#:~:text=Clean%20cup%20refers%20to%20a,flavors%20or%20other%20off%20notes.
+7-https://library.sweetmarias.com/glossary/clean-cup/#:~:text=Clean%20cup%20refers%20to%20a,flavors%20or%20other%20off%20notes.
 
+8-https://skymountaincoffee.com/what-is-specialty-grade-coffee/#:~:text=Types%20of%20Defects,sticks%20or%20stones%2C%20water%20damage.
+
+9-https://stackoverflow.com/questions/16961921/plot-data-in-descending-order-as-appears-in-data-frame
