@@ -832,6 +832,7 @@ Additionally, countries like New Guinea, Ecuador, India, Zambia, etc represent t
 Furthermore, it is necessary to investigate which processing method is used the most and the least - with the countries that produce more coffee, as outlined in the data cleaning stage of this project - this investigation will be presented below in the EDA part of the project.
 
 ```{r}
+library(tidyverse)
 coffee_new_1%>%
   filter(Country.of.Origin %in% c(coffee_new_1%>%
                                     count(Country.of.Origin)%>%
