@@ -55,6 +55,17 @@ library(plyr)
 # For Data visualisation
 library(ggplot2)
 library(magrittr)
+library(graphics)
+library(rgdal)
+library(maptools)
+library(Matrix)
+library(broom.mixed)
+library(readr)
+library(caret)
+library(mlbench)
+library(ranger)
+library(assertive)
+library(forcats)
 ```
 
 # 3. Data Cleaning and Preparation
@@ -755,47 +766,21 @@ The histogram and count function show that the variable is not normal distribute
 # 1.
 
 ```{r}
-ggplot(coffee_new_1, aes(Country.of.Origin, Total.Cup.Points)) + geom_boxplot() + coord_flip()
-```
+colnames(coffee_new_1)
 
-The output shows it impossible to find a pattern between the relationship of total cup points and country of origin.
-Ethiopian, United States and Panama appears to be generally the coffee with highest scores.
-
-# 2.
-
-Moreover, the variable Country.of.Origin can also be used to investigate which countries produce more coffee - with the head, count and ggplot functions, as presented below. 
-
-```{r}
-library(tidyverse)
-library(dplyr)
-library(ggplot2)
-library(graphics)
-library(rgdal) 
-library(maptools)
-library(plyr)
-
-
-#ggplot(coffee_new_1, aes(Country.of.Origin, Processing.Method)) + geom_count()
-
-#head(coffee_new_1%>% 
- #      count(Country.of.Origin)%>% 
-  #     arrange(desc(n)), 8)%>%
-
-ggplot(aes(
-  x = n,
-  y = reorder(
-    coffee_new_1$Country.of.Origin,
-    coffee_new_1$Processing.Method
-  )
-)) + geom_bar(stat = "identity", fill = "#0072B2") + labs(x = "Coffee Produced", y = "Country of Origin") + theme(
-  panel.grid.major = element_blank(),
-  panel.grid.minor = element_blank(),
-  panel.background = element_blank(),
-  axis.line = element_line(colour = "pink")
-)
+# Reorder following the value of another column:
+coffee_new_1 %>%
+  mutate(Country.of.Origin = fct_reorder(Country.of.Origin, Total.Cup.Points)) %>%
+  ggplot( aes(x=Country.of.Origin, y=Total.Cup.Points)) +
+    geom_bar(stat="identity", fill="#f68060", alpha=.6, width=.4) +
+    coord_flip() +
+    xlab("") +
+    theme_bw()
 ```
 
 The output shows that Mexico, Guatemala and Colombia are the countries that produce more quantities of coffee.
+The output shows it impossible to find a pattern between the relationship of total cup points and country of origin.
+Ethiopian, United States and Panama appears to be generally the coffee with highest scores.
 
 
 # Country.of.Origin VS Processing.Method
