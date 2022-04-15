@@ -231,6 +231,15 @@ coffee_new_1 <- coffee_new_1 %>%
 colSums(is.na(coffee_new_1))
 ```
 
+Moreover, it is also crucial to investigate whether the current dataset has any duplicate values - using table and duplicate functions.
+
+```{r}
+table(duplicated(coffee_new_1))
+```
+
+The output returns FALSE for 1154 rows, meaning that the current dataset has no duplicated values.
+
+Moreover, 
 -dealing with Bag Weight problem
   - all string 
   - Majority is kg put there are some in lbs
@@ -760,19 +769,30 @@ Moreover, the variable Country.of.Origin can also be used to investigate which c
 library(tidyverse)
 library(dplyr)
 library(ggplot2)
-require(graphics)
-require("rgdal") 
-require("maptools")
-require("ggplot2")
-require("plyr")
+library(graphics)
+library(rgdal) 
+library(maptools)
+library(plyr)
 
-ggplot(coffee_new_1, aes(Country.of.Origin, Processing.Method)) + geom_count()
+
+#ggplot(coffee_new_1, aes(Country.of.Origin, Processing.Method)) + geom_count()
 
 #head(coffee_new_1%>% 
  #      count(Country.of.Origin)%>% 
   #     arrange(desc(n)), 8)%>%
 
-#ggplot(aes(x = n, y = reorder(coffee_new_1$Country.of.Origin, coffee_new_1$Processing.Method))) + geom_bar(stat = "identity", fill = "#0072B2") + labs(x = "Coffee Produced", y = "Country of Origin") + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "pink"))
+ggplot(aes(
+  x = n,
+  y = reorder(
+    coffee_new_1$Country.of.Origin,
+    coffee_new_1$Processing.Method
+  )
+)) + geom_bar(stat = "identity", fill = "#0072B2") + labs(x = "Coffee Produced", y = "Country of Origin") + theme(
+  panel.grid.major = element_blank(),
+  panel.grid.minor = element_blank(),
+  panel.background = element_blank(),
+  axis.line = element_line(colour = "pink")
+)
 ```
 
 The output shows that Mexico, Guatemala and Colombia are the countries that produce more quantities of coffee.
@@ -824,13 +844,13 @@ Furthermore, there are no visible trends within the data as all variables have s
 par(mfrow=c(1,3)) # Part II
 attach(coffee_new_1)
 plot(Total.Cup.Points, Category.One.Defects, main="Defects type I vs Coffee Score", 
-   xlab="Total.Cup.Points", ylab="Category.One.Defects", pch=19)
+   xlab="Total.Cup.Points", ylab="Category.One.Defects", pch=19, col = "dark red")
 
 plot(Total.Cup.Points, Category.Two.Defects, main="Defects type II vs Coffee Score", 
-   xlab="Total.Cup.Points", ylab="Category.Two.Defects", pch=19)
+   xlab="Total.Cup.Points", ylab="Category.Two.Defects", pch=19, col = "dark blue")
 
 plot(Quakers, Quakers, Total.Cup.Points="Quakers vs Coffee Score", 
-   xlab="Quakers", ylab="Total.Cup.Points", pch=19)
+   xlab="Quakers", ylab="Total.Cup.Points", pch=19, col = "dark red")
 ```
 
 The output shows that for best coffee quality scores ( >80 Total.Cup.Points) happens when the number of defects and Quakers are low.
@@ -855,29 +875,29 @@ These categories are presented below:
 
 Mutate function is used below to create these categories and represent them visually. 
 
-```{r}
-coffee_new_1 <- coffee_new_1%>%
- mutate(grade = case_when(
-   Total.Cup.Points >= 85 ~ 'Very good',
-   Total.Cup.Points >= 80 ~ 'Good',
-   Total.Cup.Points < 80 ~ 'Bad'
- ))
-
-coffee_new_1$grade <- factor(coffee_new_1$grade, levels = c('Not Special', 'Very Good', 'Excellent'))
-
-coffee_new_1%>%
-  filter(Country.of.Origin %in% c(coffee_new_1%>%
-                                    count(Country.of.Origin)%>%
-                                    filter(n >25)%>%
-                                    pull(Country.of.Origin)))%>%
-  count(Country.of.Origin, grade)%>%
-  mutate(country = factor(Country.of.Origin, levels = c("Mexico", "Guatemala", "Colombia", "Brazil", 
-                                                        "Taiwan", "Honduras", "Costa Rica", "Tanzania",
-                                                        "Uganda")))%>%
-  ggplot(aes(x = country, y = n, fill = grade)) + geom_col() + 
-  scale_fill_manual(values=c("azure3","#0072B2", 'darkorange')) +  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-        panel.background = element_blank(), axis.line = element_line(colour = "black"))
-```
+#```{r}
+#coffee_new_1 <- coffee_new_1%>%
+# mutate(grade = case_when(
+#   Total.Cup.Points >= 85 ~ 'Very good',
+#   Total.Cup.Points >= 80 ~ 'Good',
+#   Total.Cup.Points < 80 ~ 'Bad'
+# ))
+#
+#coffee_new_1$grade <- factor(coffee_new_1$grade, levels = c('Not Special', 'Very Good', #'Excellent'))
+#
+#coffee_new_1%>%
+#  filter(Country.of.Origin %in% c(coffee_new_1%>%
+#                                    count(Country.of.Origin)%>%
+#                                    filter(n >25)%>%
+#                                    pull(Country.of.Origin)))%>%
+#count(Country.of.Origin, grade)%>%
+#  mutate(country = factor(Country.of.Origin, levels = c("Mexico", "Guatemala", "Colombia", #"Brazil", 
+#                                                        "Taiwan", "Honduras", "Costa Rica", #"Tanzania",
+#                                                        "Uganda")))%>%
+#  ggplot(aes(x = country, y = n, fill = grade)) + geom_col() + 
+#  scale_fill_manual(values=c("azure3","#0072B2", 'darkorange')) +  theme(panel.grid.major = #element_blank(), panel.grid.minor = element_blank(),
+#        panel.background = element_blank(), axis.line = element_line(colour = "black"))
+#```
 
 
 # Pyspark Analysis - 1732576
