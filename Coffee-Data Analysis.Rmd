@@ -629,9 +629,14 @@ The summary function output shows that variables like Aroma, Flavor, Acidity, Bo
 
 Nevertheless, the variables presented above need further visual investigation, to actually understand if they have symmetric distribution.
 
-# 1 - Explore each variable individually to understand if they are normally distributed and can be used in a Machine Learning moodel - starting by the target variable Total.Cup.Points.
 
-Analysis of green coffee includes a detailed report of the green coffee grading, cupping score, ﬂavor proﬁle as. well as possible roast proﬁles and brew methods.
+################
+#EDA PLAN  STARTS
+################
+
+# 4.1 - Explore each variable individually to understand if they are normally distributed and can be used in a Machine Learning moodel - starting by the target variable Total.Cup.Points.
+
+Analysis of green coffee includes a detailed report of the green coffee grading, cupping score, ﬂavor proﬁle as. well as possible roast proﬁles and brew methods (Please refer to the GitHub repository to understand what variables are being investigated in this project's EDA: Please find the link - git@github.com:JPPedra/DDA_Coursework.git)
 
 ```{r}
 # ggplot function to investigate the distribution of the variable Total.Cup.Points
@@ -646,18 +651,28 @@ ggplot(coffee_new_1, aes(x=Total.Cup.Points)) + geom_histogram(aes(y=..density..
 The histogram output shows that Total.Cup.Points variable is normally distributed but slightly skewed to the right.
 Moreover, the output also shows that most of the coffee beans have a score between 80 and 85.
 
-Many research shows that Total.Cup.Points represents the coffee quality by gathering data from different variables: Aroma, Flavor, Aftertaste, Acidity, Body, Balance and Sweetness - hence, these variables need further investigation (Rachel, 2016; Porto, 2022 and Hyde, 2022).
+Many research shows that Total.Cup.Points represents the coffee quality by gathering data from different variables: Aroma, Flavor, Aftertaste, Acidity, Body, Balance and Sweetness - hence, these variables need further investigation presented further in this project's EDA section. (Rachel, 2016; Porto, 2022 and Hyde, 2022).
 
 # Green Analysis: Research (Daily Coffee, 2020) shows that a cofee green analysis investigates coffee grading, cupping score, flavor and roast profiles. Hence, it is crutial to analyse variables like Category.Defects and Quakers.
 
 Having said that, it is important to understand how variables Category.One/Two.Defects and Quakers behave - as having Quakers leads to defects in coffee beans - Meaning, these three variables have a relationship between them.
 
 ```{r}
-ggplot(coffee_new_1, aes(Category.One.Defects)) + geom_histogram(aes(y=..density..), binwidth=2, colour="black", fill="goldenrod2") + geom_density(alpha=.2, fill="blue")
+library(ggplot2)
+library(ggpubr)
+theme_set(theme_pubr())
 
-ggplot(coffee_new_1, aes(Category.Two.Defects)) + geom_histogram(aes(y=..density..), binwidth=3, colour="black", fill="goldenrod2") + geom_density(alpha=.2, fill="darkblue")
+plot1<- ggplot(coffee_new_1, aes(Category.One.Defects)) + geom_histogram(aes(y=..density..), binwidth=2, colour="black", fill="goldenrod2") + geom_density(alpha=.2, fill="blue")
 
-ggplot(coffee_new_1, aes(Quakers)) + geom_histogram(aes(y=..density..), binwidth=0.7, colour="black", fill="goldenrod2") + ggtitle("Coffee Quakers") + geom_density(alpha=.2, fill="red")
+plot2<- ggplot(coffee_new_1, aes(Category.Two.Defects)) + geom_histogram(aes(y=..density..), binwidth=3, colour="black", fill="goldenrod2") + geom_density(alpha=.2, fill="darkblue")
+
+plot3<- ggplot(coffee_new_1, aes(Quakers)) + geom_histogram(aes(y=..density..), binwidth=0.7, colour="black", fill="goldenrod2") + ggtitle("Coffee Quakers") + geom_density(alpha=.2, fill="red")
+
+# function that combines the 3 plots for a easier visualization 
+plots <- ggarrange(plot1, plot2, plot3,
+                    labels = c("Defects I", "Defects II","Quakers"),
+                    ncol = 3, nrow = 1)
+plots
 ```
 
 The output shows two things:
@@ -670,7 +685,8 @@ Moreover, the histogram representing the variable Quakers shows that this variab
 
 The output also shows that variables category defects have a higher density when the number of defects is very low.
 
-#Cupping Scores Analysis Recent research shows that variables like Aroma and Flavor make up the cupping score - that makes it possible to investigate the quality of the coffee (Porto, 2022).
+
+Moreover, it is now necessary to investigate the variables that make the Total Cup Points variable, as mentioned earlier in this section; Cupping Scores Analysis Recent research shows that variables like Aroma and Flavor make up the cupping score - that makes it possible to investigate the quality of the coffee (Porto, 2022).
 
 # Cupping Score analysis investigates the following variables: Acidity, Aroma, Flavor, Aftertaste, Body, Balance, Uniformity 
 
@@ -678,7 +694,7 @@ As outlined before in this project, the target variable is total Total.Cup.Point
 
 Therefore, variables like Acidity, Aroma, Flavor, Aftertaste, Body, Balance, Uniformity should have a high correlated relationship with the target variable and because of that need further investigation.
 
-Once again, as outlined above in the EDA section, these variables apparent to be normal distributed but it is necessary to plot them visually and confirm the summary statistics.
+Once again, as outlined above in the EDA section (with the summary function), these variables apparent to be normal distributed but it is necessary to plot them visually and confirm the summary statistics.
 
 
 ```{r}
@@ -688,53 +704,33 @@ Once again, as outlined above in the EDA section, these variables apparent to be
 
 # the variables visual representation is divided into two parts; for a better understanding of the data.
 # Part I with variables: Aroma, Flavor, Aftertaste and Acidity.
-# Part II with variables: Body, Balance and Sweetness.
+# Part II with variables: Body, Balance, Sweetness and Clean.Cup.
 
 par(mfrow=c(1,4)) # Part I
 
-hist(coffee_new_1$Aroma, main="Histogram of coffee Aroma",xlab="Coffee´s Aroma", ylab="")
+hist(coffee_new_1$Aroma, main="Histogram of coffee Aroma",xlab="Coffee´s Aroma", ylab="", col = " light blue")
 
-hist(coffee_new_1$Flavor, main="Histogram of coffee Flavor",xlab="Coffee´s Flavor", ylab="")
+hist(coffee_new_1$Flavor, main="Histogram of coffee Flavor",xlab="Coffee´s Flavor", ylab="", col = " dark red")
 
-hist(coffee_new_1$Aftertaste, main="Histogram of coffee Aftertaste",xlab="Coffee´s Aftertaste", ylab="")
+hist(coffee_new_1$Aftertaste, main="Histogram of coffee Aftertaste",xlab="Coffee´s Aftertaste", ylab="", col = " light blue")
 
-hist(coffee_new_1$Acidity, main="Histogram of coffee Acidity",xlab="Coffee´s Acidity", ylab="")
+hist(coffee_new_1$Acidity, main="Histogram of coffee Acidity",xlab="Coffee´s Acidity", ylab="", col = " dark red")
 
 par(mfrow=c(1,4)) # Part II
 
-hist(coffee_new_1$Body, main="Histogram of coffee Body",xlab= "Coffee´s Body", ylab="")
+hist(coffee_new_1$Body, main="Histogram of coffee Body",xlab= "Coffee´s Body", ylab="", col = " light blue")
 
-hist(coffee_new_1$Balance, main="Histogram of coffee Balance",xlab="Coffee´s Balance", ylab="")
+hist(coffee_new_1$Balance, main="Histogram of coffee Balance",xlab="Coffee´s Balance", ylab="", col = " dark red")
 
-hist(coffee_new_1$Sweetness, main="Histogram of coffee Sweetness",xlab="Coffee´s Sweetness", ylab="")
+hist(coffee_new_1$Sweetness, main="Histogram of coffee Sweetness",xlab="Coffee´s Sweetness", ylab="", col = " light blue")
 
-hist(coffee_new_1$Clean.Cup, main="Histogram of coffee Clean.Cup",xlab="Coffee´s Clean.Cup", ylab="")
+hist(coffee_new_1$Clean.Cup, main="Histogram of coffee Clean.Cup",xlab="Coffee´s Clean.Cup", ylab="", col = " dark red")
 ```
 
-Part I output shows that the four variables are normally distributed and, Part II, shows that variables Body and Balance present a similar distribution. However, variables Sweetness and Clean.Cup do not behave the same way and needs further investigation, as they present a distribution skewed to the right.
+Part I output shows that the four variables are normally distributed and, Part II, shows that variables Body and Balance present a symmetric distribution. 
+However, variables Sweetness and Clean.Cup do not behave the same way and need further investigation, as they do not present a normal distribution - skewed to the right.
 
 Therefore, both variables Sweetness and Clean.Cup need further investigation and should probably not be included in the model as they do not look normal distributed.
-
-
-It is also important to investigate how these variables relate between themselves, taking into consideration the total.cup.points.
-This to understand the relationship between the numerical variables - will further help when computing the regression model.
-
-```{r}
-qplot(Aroma, Flavor,  data = coffee_new_1, colour = Total.Cup.Points)
-qplot(Aftertaste, Acidity, data = coffee_new_1, colour = Total.Cup.Points)
-qplot(Acidity, Body, data = coffee_new_1, colour = Total.Cup.Points)
-
-#qplot(Balance,Uniformity, data = coffee_new_1, colour = Total.Cup.Points)
-qplot(Clean.Cup,Uniformity, data = coffee_new_1, colour = Total.Cup.Points)
-qplot(Cupper.Points, Clean.Cup, data = coffee_new_1, colour = Total.Cup.Points)
-qplot(Balance,Uniformity, data = coffee_new_1, colour = Total.Cup.Points)
-```
-The output shows:
-1- Aroma and Flavor are correlated.
-2- Aftertaste and Acidity are correlated.
-3- Body and Acidity are correlated.
-4- Uniformity and Clean.cup do not present any correlation, just like between Clean cup and cupper points.
-5- Finally, variables Uniformity and balance are not correlated.
 
 
 # Variables that do not look normal distributed in the histograms ploted above.
@@ -753,6 +749,8 @@ ggplot(coffee_new_1, aes(x=Sweetness)) + geom_histogram(aes(y=..density..),
 
 count(coffee_new_1, 'Sweetness')
 ```
+
+ggplot is used to get a better insight into the variable sweetness. The output confirms that this variable is not normal distributed. 
 
 Sweetness are generally highly rated with little deviation from scores of 10, as shown in the table function output and this variable´s ggplot histogram.
 
@@ -776,13 +774,40 @@ ggplot(coffee_new_1, aes(x=Clean.Cup)) + geom_histogram(aes(y=..density..),
 count(coffee_new_1, 'Clean.Cup')
 ```
 
-The histogram and count function show that the variable is not normal distributed. Hence, this variable should probably not be used in the machine learning method as it would disrupt the accuracy of the model.
+ggplot is used to get a better insight into the variable Clean.Cup The output confirms that this variable is not normal distributed. 
 
-# 2 - analyse the continuous variables graphically against the Total.Cup.Points variable to understand if they affect that variable. If variables affect the Total.Cup.Points of coffee quality, then they should be taken into the Total.Cup.Points regression model.
+The histogram and count function show that the variable is not normal distributed. However, this variable refers to a coffee free of taints and defects (Maria, 2022). This means that once again makes sense for the variable to not be normal distributed. 
+
+The analysis and investigation of these two variables is now completed.
+
+
+# 4.2 - analyse the continuous variables graphically against the Total.Cup.Points variable to understand if they affect that variable. If variables affect the Total.Cup.Points of coffee quality, then they should be taken into the Total.Cup.Points regression model.
+Also, analyse the relation between variables.
+
+It is also important to investigate how these variables relate between themselves, taking into consideration the total.cup.points.
+This to understand the relationship between the numerical variables - will further help when computing the regression model.
+
+```{r}
+qplot(Aroma, Flavor,  data = coffee_new_1, colour = Total.Cup.Points)
+qplot(Aftertaste, Acidity, data = coffee_new_1, colour = Total.Cup.Points)
+qplot(Acidity, Body, data = coffee_new_1, colour = Total.Cup.Points)
+
+qplot(Balance,Uniformity, data = coffee_new_1, colour = Total.Cup.Points)
+qplot(Clean.Cup,Uniformity, data = coffee_new_1, colour = Total.Cup.Points)
+qplot(Cupper.Points, Clean.Cup, data = coffee_new_1, colour = Total.Cup.Points)
+qplot(Balance,Uniformity, data = coffee_new_1, colour = Total.Cup.Points)
+```
+
+The output shows:
+
+1- Aroma and Flavor are correlated.
+2- Aftertaste and Acidity are correlated.
+3- Body and Acidity are correlated.
+4- Uniformity and Clean.cup do not present any correlation, just like between Clean cup and cupper points.
+5- Finally, variables Uniformity and balance are not correlated.
+
 
 # Country.of.Origin
-
-# 1.
 
 ```{r}
 colnames(coffee_new_1)
@@ -799,7 +824,7 @@ coffee_new_1 %>%
 
 The output shows that Mexico, Guatemala and Colombia are the countries that produce more quantities of coffee.
 The output shows it impossible to find a pattern between the relationship of total cup points and country of origin.
-Ethiopian, United States and Panama appears to be generally the coffee with highest scores.
+Additionally, countries like New Guinea, Ecuador, India, Zambia, etc represent the countries with the least total cup points.
 
 
 # Country.of.Origin VS Processing.Method
@@ -807,7 +832,6 @@ Ethiopian, United States and Panama appears to be generally the coffee with high
 Furthermore, it is necessary to investigate which processing method is used the most and the least - with the countries that produce more coffee, as outlined in the data cleaning stage of this project - this investigation will be presented below in the EDA part of the project.
 
 ```{r}
-library(tidyverse)
 coffee_new_1%>%
   filter(Country.of.Origin %in% c(coffee_new_1%>%
                                     count(Country.of.Origin)%>%
@@ -824,23 +848,28 @@ coffee_new_1%>%
   scale_fill_manual(values=c("azure3","#0072B2"))
 ```
 
-The output shows that Natural/Dry processing methods are mostly used in Brazil. The plot also shows that Washed/Wet processing methods are mostly used in Countries like Mexico, Guatemala and Colombia - as these countries produce more coffee, it is possible to conclude that Washed and Wet processing methods produce better results.
+The output shows that Natural/Dry processing methods are mostly used in Brazil. The plot also shows that Washed/Wet processing methods are mostly used in Countries like Mexico, Guatemala and Colombia - as these countries produce more coffee, it is possible to conclude that Washed and Wet processing methods produce more quantities of coffee beans.
 
 
 # Processing.Method vs Total.Cup.Points
 
-```{r}
-ggplot(coffee_new_1, aes(x=Processing.Method, y=Total.Cup.Points, fill=Processing.Method)) +
-  geom_boxplot() +
-  theme_classic() +
-  coord_flip()
-```
+Website used to compute this plot: https://r-graph-gallery.com/267-reorder-a-variable-in-ggplot2.html.
 
-The output shows that Washed/Wet processing method is the one with lowest coffee quality scores (Total Cup Points).
+```{r}
+coffee_new_1 %>%
+  mutate(Processing.Method = fct_reorder(Processing.Method, Total.Cup.Points, .fun='median')) %>%
+  ggplot( aes(x=reorder(Processing.Method, Total.Cup.Points), y=Total.Cup.Points, fill=Processing.Method)) + 
+    geom_boxplot() +
+    xlab("Processing.Method") +
+    theme(legend.position="none") +
+    xlab("")
+```
+The output shows that Washed/Wet processing method is the one with lowest coffee quality scores (Total Cup Points) and that Natural/Dry processing method is the one with most total cup points.
+
 Furthermore, there are no visible trends within the data as all variables have similar means, meaning, similar coffee quality scores.
 
 
-# Category.One.Defects, Category.Two.Defects and Quakers
+# Category.One.Defects vs Category.Two.Defects vs Quakers
 
 ```{r}
 # The plot below shos too much information - it is not necessary to plot the data like this.
@@ -863,9 +892,7 @@ Therefore, variables like Category.One.Defects, Category.Two.Defects and Quakers
 # Moisture vs Total.Cup.Points
 
 ```{r}
-attach(coffee_new_1)
-plot(Total.Cup.Points, Moisture, main="Moisture Coffee Score", 
-   xlab="Total.Cup.Points", ylab="Moisture", pch=19)
+ggplot(coffee_new_1, aes(Moisture,Total.Cup.Points)) + geom_point(col = "dark red") + ggtitle("Moisture vs Total.Cup.Poins")
 ```
 
 The output shows that a relationship between variables Total.Cup.Points and Moisture does not exist.
@@ -918,4 +945,5 @@ Mutate function is used below to create these categories and represent them visu
 4- https://dailycoffeenews.com/2020/04/29/physical-analysis-of-green-coffee-what-to-measure-record-and-track/
 5- https://dialupthecoffee.com/naturally-sweet-coffee/
 6 - https://www.sovdacoffee.com/blog/2020/9/10/the-science-behind-defective-beans-and-how-they-affect-your-roast#:~:text=Quakers%20are%20coffee%20beans%20that,it%20be%20free%20of%20quakers.
+https://library.sweetmarias.com/glossary/clean-cup/#:~:text=Clean%20cup%20refers%20to%20a,flavors%20or%20other%20off%20notes.
 
