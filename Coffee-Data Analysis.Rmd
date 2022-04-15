@@ -103,6 +103,65 @@ summary(coffee_fac_lev)
 - There is alot of errors and redudant information
 - can see the amount of missings informations, etc. 
 
+Validate Package and Quality Rules
+Through the validate Package we check if in the data set the variables are accurate and if there are any missing values.
+The coffee.rules are useful to check the quality of data. We have created the data rules based on the 'structure' and on the 'summary' functions.
+
+```{r}
+coffee.rules <- validator(
+#check if data type is correct
+check.NBags.DataType = is.numeric(Number.of.Bags),
+check.Aroma.DataType = is.numeric(Aroma),
+check.Flavor.DataType = is.numeric(Flavor),
+check.Taste.DataType = is.numeric(Aftertaste),
+check.Acidity.DataType = is.numeric(Acidity),
+check.Body.DataType = is.numeric(Body),
+check.Balance.DataType = is.numeric(Balance),
+check.Uniformity.DataType = is.numeric(Uniformity),
+check.CleanCup.DataType = is.numeric(Clean.Cup),
+check.TotCupPoints.DataType = is.numeric(Total.Cups.Points),
+check.CupperPoints.DataType = is.numeric(Cupper.Points),
+check.Moisture.DataType = is.numeric(Moisture),
+check.CategoryOneDef.DataType = is.numeric(Category.One.Defects),
+check.ProcessMeth.DataType = is.factor(Processing.Method),
+check.Quakers.DataType = is.factor(Quakers),
+
+CheckWeight = is.element(Bag.Weight, ("kg")), #check unit of measure
+
+#check spelling
+CheckProcessMeth = is.element(Processing.Method,
+c("Washed / Wet", "Natural/ Dry", "Pulped natural / honey", "Semi-washed / Semi-pulped", "Other")),
+CheckColor = is.element(Color,
+c("Green", "None" , "Bluish-Green", "Blue-Green")), #check spelling
+
+CheckNoBags = Number.of.Bags>0, #check no negatives
+CheckFlavor = Flavor>0, #check no negatives
+CheckAftertaste = Aftertaste>0, #check no negatives
+CheckAcidity = Acidity>0, #check no negatives
+CheckBody = Body>0, #check no negatives
+CheckBalance = Balance>0, #check no negatives
+CheckMoisture = Moisture>0, #check no negatives
+CheckQuakers = Quakers>=0, #check no negatives
+
+CheckMaxLowAltitute = altitude_low_meters>=1,
+CheckMinAltitute = altitude_low_meters <= 190164,
+CheckMaxHighAltitute = altitude_high_meters>=1,
+CheckMinHighAltitute = altitude_high_meters <= 190164,
+CheckMaxMeanAltitute = altitude_mean_meters>=1,
+CheckMinMeanAltitute = altitude_mean_meters <= 190164
+)
+```
+The 'quality.check' function used below will check if all items in the coffee.rules created, can pass or fail. Moreover, we can check how many missing values there are for each variable. If a rule do not pass, the error column will display 'True', otherwise it display 'False'
+```{r}
+quality.check <- confront(coffee_new, coffee.rules) # To check the coffee quality rules
+summary (qual.check)
+```
+
+Through the plot we can visualize better the errors found in the quality check.
+```{r}
+plot (quality.check)#to visualize the quality check of the coffee through a plot
+```
+
 - As a results, in order to answer our research, we will subset the dataset to contain the following variables: 
   - Country.of.Origin       
   - Number.of.Bags               
@@ -187,50 +246,6 @@ coffee_new_1$Moisture<-as.double(coffee_new_1$Moisture)
 coffee_new_1$Category.One.Defects<-as.double(coffee_new_1$Category.One.Defects) 
 #checking the structure of the data set with new data types
 str(coffee_new_1)
-```
-
-validate (before)
-```{r}
-coffee.rules <- validator(okID = ID>=0, 
-                          SpeciesCorrect = is.element(Species,c("Arabica")), 
-                          NoNegAltitude = Altitude>0, 
-                          NoExtremeAltitude = Altitude< 200000, 
-                          NonNegBags = Number.of.Bags>0, 
-                          NonNegWeight = Bag.Weight>0, 
-                          CorrectMethod = is.element(Processing.Method,
-                                                     c("Washed / Wet", "Natural/ Dry", "Pulped natural / honey", "Semi-washed / Semi-pulped", "Other")), 
-                          NoNegAroma = Aroma>0, 
-                          NoNegFlavor = Flavor>0, 
-                          NoNegAftertaste = Aftertaste>0, 
-                          NoNegAcidity = Acidity>0, 
-                          NoNegBody = Body>0, 
-                          NoNegBalance = Balance>0,  
-                          NoNegUniformity = Uniformity>0, 
-                          NoExtUniformity = Uniformity<=10,  
-                          NoNegCup = Clean.Cup>0, 
-                          NoExtClean.Cup  = Clean.Cup <=10,  
-                          NoNegSweetness = Sweetness>0, 
-                          NoExtSweetness = Sweetness<=10, 
-                          NoNegPoints = Cupper.Points>0, 
-                          NoExtPoints = Cupper.Points<=10, 
-                          NoNegTotalPoints = Total.Cup.Points>0, 
-                          NoExtTotalPoints = Total.Cup.Points<=100, 
-                          NoNegMoisture = Moisture>0, 
-                          NoNegQuakers = Quakers>=0, 
-                          ColorCorrect = is.element(Color,
-                                                    c("Green", "None" , "Bluish-Green", "Blue-Green")),
-                          NoMinaltitute = altitude_low_meters>=1,
-                          NoextAltitute = altitude_low_meters <= 190164,
-                          NoMinaltitute = altitude_high_meters>=1,
-                          NoextAltitute = altitude_high_meters <= 190164,
-                          NoMinaltitute = altitude_mean_meters>=1,
-                          NoextAltitute = altitude_mean_meters <= 190164
-) 
-
-out   <- confront(coffee_new, coffee.rules)
-out_1 <- confront(coffee, coffee.rules)
-summary(out)
-plot(out)
 ```
 
 - Then apply NA imputation to all numerical variables
