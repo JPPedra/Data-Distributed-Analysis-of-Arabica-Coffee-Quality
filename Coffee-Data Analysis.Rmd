@@ -626,13 +626,7 @@ As confirmed by the last boxplot output, these two variables have no outliers - 
 # 4. Exploratory Data Analysis
 ################ EDA ################
 
-# Research question:
-
-"Given the Quality measures of the Arabic Coffee beans, can we predict the overall coffee quality score?"
-
-Machine Learning Method in which the Target Variable is Total.Cup.Points.
-
-# EDA Plan:
+## 4.1 EDA Plan:
 
 It is crucial to look at the summary statistics when starting the exploratory data analysis of the data set. The summary function gives an idea of how normally distributed each variable is, when the median and mean values are similar. 
 
@@ -700,6 +694,12 @@ Moreover, the histogram representing the variable Quakers shows that this variab
 
 The output also shows that variables category defects have a higher density when the number of defects is very low.
 
+Let's have a quick look at the relationship between three variables
+```{r}
+qplot(Category.One.Defects,Category.Two.Defects, data = coffee_new_1, colour = Quakers)
+```
+
+The scatter plot above shows the relationship between the Category.One.Defect and Category.Two.Defects with the quakers colour encoded. This plot indicates that both the category defect have very low Quakers, therefore, the coffee beans collected has little defects. Additionally, most of these values for both of category defects are low.
 
 Moreover, it is now necessary to investigate the variables that make the Total Cup Points variable, as mentioned earlier in this section; Cupping Scores Analysis Recent research shows that variables like Aroma and Flavor make up the cupping score - that makes it possible to investigate the quality of the coffee (Porto, 2022).
 
@@ -795,32 +795,40 @@ The histogram and count function show that the variable is not normal distribute
 
 The analysis and investigation of these two variables is now completed.
 
+Let's explore the variation in sample information attributes  (Country.of.origin, Number.of.Bags. Bag.weight, processing.method) utilising gridExtra package
+```{r}
+# country of origin
+sample_info_1 <- coffee_new_1%>%
+  count(Country.of.Origin)%>%
+  arrange(desc(n))%>%
+  ggplot(aes(x = n, y = reorder(Country.of.Origin, n))) + 
+  geom_bar(stat = "identity", fill = "#0072B2") + 
+  labs(y = "Country of Origin", x = "Number of Arabica Coffee Beans Produced") + 
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+                                          panel.background = element_blank(), axis.line = element_line(colour = "pink"))
+
+# processing method
+sample_info_2 <- coffee_new_1%>%
+  count(Processing.Method)%>%
+  arrange(desc(n))%>%
+  ggplot(aes(x = n, y = reorder(Processing.Method, n))) + 
+  geom_bar(stat = "identity", fill = "#0072B2") + 
+  labs(y = "Processing Methods", x = "Number of Arabica Coffee Beans") + 
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+                                          panel.background = element_blank(), axis.line = element_line(colour = "pink"))
+# Number.of.bag
+sample_info_3 <- ggplot(coffee_new_1, aes(x=Number.of.Bags)) + 
+               geom_histogram(breaks=seq(0,100,by=10), fill="#69b3a2", color="#e9ecef", alpha=0.9)
+             
+sample_info_4 <- ggplot(coffee_new_1, aes(x=Bag.Weight)) + 
+  geom_histogram(breaks=seq(0,100,by=10), fill="#69b3a2", color="#e9ecef", alpha=0.9)
+
+library(gridExtra)
+grid.arrange(sample_info_1, sample_info_2, sample_info_3, sample_info_4)
+```
 
 # 4.2 - analyse the continuous variables graphically against the Total.Cup.Points variable to understand if they affect that variable. If variables affect the Total.Cup.Points of coffee quality, then they should be taken into the Total.Cup.Points regression model.
 Also, analyse the relation between variables.
-
-It is also important to investigate how these variables relate between themselves, taking into consideration the total.cup.points.
-This to understand the relationship between the numerical variables - will further help when computing the regression model.
-
-```{r}
-qplot(Aroma, Flavor,  data = coffee_new_1, colour = Total.Cup.Points)
-qplot(Aftertaste, Acidity, data = coffee_new_1, colour = Total.Cup.Points)
-qplot(Acidity, Body, data = coffee_new_1, colour = Total.Cup.Points)
-
-qplot(Balance,Uniformity, data = coffee_new_1, colour = Total.Cup.Points)
-qplot(Clean.Cup,Uniformity, data = coffee_new_1, colour = Total.Cup.Points)
-qplot(Cupper.Points, Clean.Cup, data = coffee_new_1, colour = Total.Cup.Points)
-qplot(Balance,Uniformity, data = coffee_new_1, colour = Total.Cup.Points)
-```
-
-The output shows:
-
-1- Aroma and Flavor are correlated.
-2- Aftertaste and Acidity are correlated.
-3- Body and Acidity are correlated.
-4- Uniformity and Clean.cup do not present any correlation, just like between Clean cup and cupper points.
-5- Finally, variables Uniformity and balance are not correlated.
-
 
 # Country.of.Origin
 
@@ -924,19 +932,54 @@ Mutate function is used below to create these categories and represent them visu
 
 # CODE DELETED because having the processing method variable as a category would not help anzwering the reserach question.
 
+## Relationship between the numerical and total.cup.point
 
-# Pairplot in R --) HPCI technique - 1732576
-
-```{r}
-
-```
-
-
-# Pyspark Analysis - 1 HPCI technique + 1 Machine Learning Technique - 1732576
+It is also important to investigate how these variables relate between themselves, taking into consideration the total.cup.points.
+This to understand the relationship between the numerical variables - will further help when computing the regression model.
 
 ```{r}
+qplot(Aroma, Flavor,  data = coffee_new_1, colour = Total.Cup.Points)
+qplot(Aftertaste, Acidity, data = coffee_new_1, colour = Total.Cup.Points)
+qplot(Acidity, Body, data = coffee_new_1, colour = Total.Cup.Points)
 
+qplot(Balance,Uniformity, data = coffee_new_1, colour = Total.Cup.Points)
+qplot(Clean.Cup,Uniformity, data = coffee_new_1, colour = Total.Cup.Points)
+qplot(Cupper.Points, Clean.Cup, data = coffee_new_1, colour = Total.Cup.Points)
+qplot(Balance,Uniformity, data = coffee_new_1, colour = Total.Cup.Points)
 ```
+
+The output shows:
+
+1- Aroma and Flavor are correlated.
+2- Aftertaste and Acidity are correlated.
+3- Body and Acidity are correlated.
+4- Uniformity and Clean.cup do not present any correlation, just like between Clean cup and cupper points.
+5- Finally, variables Uniformity and balance are not correlated.
+
+Scatter plot matrix and a heatmap are two very powerful way of showing the correlation between all continuous variables. The Pearson's correlation coefficient, `r`, will be extracted and implemented. 
+
+Before we create these plots, we will first rename some of the columns to improve the visualisations and for better readability. This will be into a new variable called `coffee_new_num` as the correlations can be only performed on numerical variables.
+```{r}
+str(coffee_new_1)
+coffee_new_num <- coffee_new_1 %>%
+  rename(Num.of.Bags = Number.of.Bags,
+         Quality.Score = Total.Cup.Points,
+         Cat.1.Defect = Category.One.Defects,
+         Cat.2.Defect = Category.Two.Defects)
+str(coffee_new_num)
+``` 
+
+Let's first plot the scatter plot matrix utilising the GGally package.
+```{r}
+library(GGally)
+str(coffee_new_1)
+#plot(coffee_num_new)
+ggpairs(coffee_new_num[ ,-c(1,4)], title = "Scatterplot Matrix of the Numerical Features")
+```
+
+This plot provides alot of information. It shows the scatter plot and the r correlation value between all of the continuous variables and shows the density plot of each variable. From the scatter plot, there is many linear relationship with the target variable such as **Aroma** and **Flavour**. However, there are some variables such as **Bag.Weight** and **Uniformity** that show non-linearity with the target variable.
+
+
 
 # REFERENCES:
 
