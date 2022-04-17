@@ -979,7 +979,84 @@ ggpairs(coffee_new_num[ ,-c(1,4)], title = "Scatterplot Matrix of the Numerical 
 
 This plot provides alot of information. It shows the scatter plot and the r correlation value between all of the continuous variables and shows the density plot of each variable. From the scatter plot, there is many linear relationship with the target variable such as **Aroma** and **Flavour**. However, there are some variables such as **Bag.Weight** and **Uniformity** that show non-linearity with the target variable.
 
+correlation test
+```{r}
+cor.test(coffee_new_1$Number.of.Bags, coffee_new_1$Total.Cup.Points) ## No correlations --> correlation is not significant
+cor.test(coffee_new_1$Bag.Weight, coffee_new_1$Total.Cup.Points) ## No correlations --> correlation is not significant
+cor.test(coffee_new_1$Aroma, coffee_new_1$Total.Cup.Points) ## correlation is significant 
+cor.test(coffee_new_1$Flavor, coffee_new_1$Total.Cup.Points) ## correlation is significant 
+cor.test(coffee_new_1$Aftertaste, coffee_new_1$Total.Cup.Points) ## correlation is significant 
+cor.test(coffee_new_1$Acidity, coffee_new_1$Total.Cup.Points) ## correlation is significant 
+cor.test(coffee_new_1$Body, coffee_new_1$Total.Cup.Points) ## correlation is significant 
+cor.test(coffee_new_1$Uniformity, coffee_new_1$Total.Cup.Points) ## correlation is significant 
+cor.test(coffee_new_1$Clean.Cup, coffee_new_1$Total.Cup.Points) ## correlation is significant 
+cor.test(coffee_new_1$Sweetness, coffee_new_1$Total.Cup.Points) ## correlation is significant 
+cor.test(coffee_new_1$Moisture, coffee_new_1$Total.Cup.Points) ## correlation is significant 
+cor.test(coffee_new_1$Category.One.Defects, coffee_new_1$Total.Cup.Points) ## correlation is significant 
+cor.test(coffee_new_1$Quakers, coffee_new_1$Total.Cup.Points) ## correlation is not significant
+cor.test(coffee_new_1$Category.Two.Defects, coffee_new_1$Total.Cup.Points) ## correlation is significant 
+```
 
+All numerical variables show significant correlations expect for Number.of.bags, Bag.Weights, and Quakers
+
+## PCA
+Principle Component Analysis (PCA) is an useful feature extraction that involves reducing the number of dimension and removing background noises. This is useful technique to improve variation within the dataset and improve the predicitve modelling.
+
+PCA is performed on all independent variables (expect for the country of origin due their high level of imbalance). Therefore, will encode the processing method using the command below:
+```{r}
+table(coffee_new_1$Processing.Method)
+
+coffee_new_1$Processing.Method.Num <- coffee_new_1$Processing.Method
+
+coffee_new_1$Processing.Method.Num <- as.character(coffee_new_1$Processing.Method.Num)
+coffee_new_1["Processing.Method.Num"][coffee_new_1["Processing.Method.Num"] == "Natural / Dry"] <- "1"
+coffee_new_1["Processing.Method.Num"][coffee_new_1["Processing.Method.Num"] == "Pulped natural / honey"] <- "2"
+coffee_new_1["Processing.Method.Num"][coffee_new_1["Processing.Method.Num"] == "Semi-washed / Semi-pulped"] <- "3"
+coffee_new_1["Processing.Method.Num"][coffee_new_1["Processing.Method.Num"] == "Washed / Wet"] <- "4"
+coffee_new_1["Processing.Method.Num"][coffee_new_1["Processing.Method.Num"] == "Other"] <- "5"
+coffee_new_1$Processing.Method.Num <- as.numeric(coffee_new_1$Processing.Method.Num)
+```
+
+PCA can be performed during the `prcomp()` function. This function involves transforming and scaling the dataset. By default, the z-score transformation is used, however, due the nature of the Arabica Coffee Dataset, using Min-Max Transformation is more appropriate. This is due to that fact most of dataset is range of scores and using the z-score would completely change the real value and would result misleading results.
+```{r}
+# create min and max values for the transformation
+maxs <- apply(coffee_new_1[,c(-1,-4, -15, -20)], 2, max) 
+mins <- apply(coffee_new_1[,c(-1,-4, -15, -20)], 2, min)
+
+# will apply the min and max transformation for the PCA
+# Need to exclude the target and the country.of.origin and Processing.Method (will the numerical version of Processing.Method - Processing.Method.Num)
+coffee_pca <- prcomp(coffee_new_1[ ,-c(1,4,15, 20)], center = mins, scale = maxs - mins)
+coffee_pca
+summary(coffee_pca)
+```
+
+will plot the secree plot of the cumulative PEV against the PCs to see if there are any PCs are showing 80% variance.
+```{r}
+plot(coffee_pca)
+
+opar <- par(no.readonly = TRUE)
+plot(
+  cumsum(coffee_pca$sdev^2/
+           sum(coffee_pca$sdev^2)),
+  ylim = c(0,1),
+  xlab = 'PC',
+  ylab = 'cumulative PEV',
+  pch = 20,
+  col = 'orange'
+)
+abline(h = 0.8, col = 'red', lty = 'dashed')
+par(opar)
+```
+
+There is no significant PCs. Therefore, will use the orginal dataset for when performing the predicitve modelling.
+
+From the correlations analysis, all the numerical independent variables will be used for the predictive modelling, expect for Number.of.bags, Bag.Weights, and Quakers.
+Country.of.Origin will also not be used due their high level of imbalance.
+As the Processing.Method have been encoded to a numerical data attribute, we can test and see if this variables has significant correlations to be used for the predicitve modelling
+```{r}
+cor.test(coffee_new_1$Processing.Method.Num, coffee_new_1$Total.Cup.Points)
+```
+There is no correlations between the Processing.Methods and the target variable, therefore, will not be used for the predictive modelling.
 
 # REFERENCES:
 
