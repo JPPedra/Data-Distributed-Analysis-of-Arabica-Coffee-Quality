@@ -699,6 +699,8 @@ qplot(Balance,Uniformity, data = coffee_new_1, colour = Total.Cup.Points)
 ```
 
 
+# HAWRA PART GUYS FOR HER TECHNIQUE and part of EDA AS WELL - make your own comments dont forget
+
 Scatter plot matrix and a heatmap are two very powerful way of showing the correlation between all continuous variables. The Pearson's correlation coefficient, `r`, will be extracted and implemented. 
 
 Before we create these plots, we will first rename some of the columns to improve the visualisations and for better readability. This will be into a new variable called `coffee_new_num` as the correlations can be only performed on numerical variables.
