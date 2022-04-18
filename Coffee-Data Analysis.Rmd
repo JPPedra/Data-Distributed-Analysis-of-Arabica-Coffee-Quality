@@ -315,58 +315,40 @@ coffee_new_1 <- na.omit(coffee_new_1)
 
 ## 3.5 Identifying and Dealing with Outliers - Data Preparation and Cleaning 
 
-This section investigates whether the current data set has any outliers - any identified outliers were removed or ignored, depending on the context of each variable.
-
-The investigation plan starts by analysing the structure of the data set. Followed by investigating the distribution of each variable to draw possible conclusions about their outliers.
-
 ```{r}
-# function displays the structure of the current data set and gives more information about each variable's datatype -
-# to understand if all the variables were correctly converted before starting the outliers investigation.
 str(coffee_new_1)
 ```
 
-Having analysed the structure of the current data set; investigate each variable separately (to identify outliers), starting by Country.of.Origin. 
+
 
 # 1- Country.of.Origin 
 
 ```{r}
-# function returns the frequency for this variable - makes it possible to identify any outliers by looking at extreme frequencies
 
 table(coffee_new_1$Country.of.Origin)
 
-#Code replaces the name of the variable by correct the value --) Cote d'Ivoire
 
 coffee_new_1["Country.of.Origin"][coffee_new_1["Country.of.Origin"] == "Cote d?Ivoire"] = "Cote d'Ivoire"
 
-#Code replaces the name of the variable by correct the value --) United Republic of Tanzania
 
 coffee_new_1["Country.of.Origin"][coffee_new_1["Country.of.Origin"] == "Tanzania, United Republic Of"] = "United Republic of Tanzania"
 
-#Code replaces the name of the variable by correct the value --) Hawaii
 
 coffee_new_1["Country.of.Origin"][coffee_new_1["Country.of.Origin"] == "United States (Hawaii)"] = "Hawaii"
 ```
 
-Table function shows that the variable country has one value for "Cote d?Ivoire". This country corresponds to Côte d'Ivoire and it might have been wrongly imputed. Moreover, the same happens with "Tanzania, United Republic Of" that should be United Republic of Tanzania instead, and with the country Hawaii.
 
 
 # 2- Number.of.Bags 
 
 ```{r}
-# the variable was not previously converted and it should be numeric type - function is used to convert the variable to the correct datatype.
 coffee_new_1$Number.of.Bags <- as.numeric(coffee_new_1$Number.of.Bags)
-
-# compute box plot to investigate any outliers - displaying the distribution of the variable makes it possible to identify any extreme values that correspond to possible outliers.
 
 ggplot(coffee_new_1, aes(Number.of.Bags)) + geom_boxplot(color="Blue",fill="#69b3a2") + theme_minimal() + ggtitle("Number.of.Bags Boxplot")
 ```
 
-The boxplot shows that the variable has one possible outlier -  there seems to be one observation higher than all other observations; should correspond to the maximum value of this variable. 
-
-Hence, boxplot and min functions are used to obtain the value for this outlier.
 
 ```{r}
-# boxplot function to identify the possible outlier
 bags_boxplot <- boxplot(coffee_new_1$Number.of.Bags, plot = F)
 
 # minimum function will get this number as the minimum outlier possible
@@ -375,9 +357,6 @@ bags_threshold <- min(bags_boxplot$out)
 bags_threshold # returns 1062, which is the outlier identified in the summary function
 ```
 
-The box plot with min functions return the value of 1062, which corresponds to the outlier previously identified.
-
-To understand if 1062 is an outlier; investigate the context within the current data set - subset function is used to understand which country has 1062 number of bags. By sub-setting the country which has 1062 number of bags, the output allows it to understand if it is the norm to have this many bags in a certain country.
 
 ```{r}
 # function to identify which country has 1062 number of bags
@@ -387,114 +366,56 @@ subset(coffee_new_1, Number.of.Bags == 1062.0) # output returns the country Braz
 subset(coffee_new_1, Country.of.Origin == "Brazil")
 ```
 
-The first subset function shows that Brazil is the country with 1062 number of bags (possible outlier)
-The country Brazil is not set to have 1000 number of bags as the norm - however, this possible outlier still needs further investigation.
 
-However, for line 735, with 1062 number of bags, this variable has 6 quackers, which relates to the poor quality of this coffee bean's set. This explains why there are more number of bags - less quality coffee leads to the need to collect more beans, which leads to more number of bags.
-
-Therefore, this coffee beans have less quality than others and that is why there are more number of bags for line 735 - which makes this instance not an outlier - it does not need further investigation and should be ignored.
-
-
-# 3 - Quakers - coffee beans that don't turn dark brown when roasted, ideally, coffee beans shoud not have any quakers (Sovda, 2020).
+# 3 - Quakers
 
 ```{r}
-# Function to get the frequency of the variable Quakers - showing 2 NAs for this variable
-# The output shows if any frequency is out of the ordinary; which allows it to identify any possible outliers.
-
 count(coffee_new_1, 'Quakers')
 
-# this function replaces NA by 0, as 0 is the mean value for the variable Quakers (mean imputation)
 coffee_new_1[is.na(coffee_new_1$Quakers) , ] = 0
 
-# NOTE based on the output:
-# As previously defined in the validate function, Quakers should range between 0 and 3. However, research (Sovda, 2020) and the count function output, show that this variable should range between 0 and 11.
-# Hence, Quakers are not necessarily less than 3; it is necessary to correct the validate function.
-
-# compute a boxplot of the variable Quakers to confirm the output of function count and check for outliers 
 ggplot(coffee_new_1, aes(Quakers)) + geom_boxplot(color="black",fill="gold") + theme_minimal() + ggtitle("Quakers in the coffee quality")
 ```
-
-The count function output shows that the variable Quakers ranges from level 0 to 11 - being 11 maximum level of coffee roastiness. 
-
-The function does not identify any outliers within the Quakers variable - However, this variable needs further investigation; computing a box plot to confirm the count function output.
-
-The box plot shows no outliers as all the values range from 0 to 11 - with no extreme values. However, the plot shows an extremely high frequency for level 11 of Quakers - this does not correspond to outliers as level 11 Quakers is accepted and within the range.
 
 
 # 4 - Processing.Method
 
 ```{r}
-# Function to get the frequency of this variable - it shows 2 missing values for this variable
-# The output shows if any frequency is out of the ordinary; which allows it to identify any possible outliers.
 count(coffee_new_1, 'Processing.Method')
 
-# count function output shows NA, this function replaces NA by "Other", as "other" corresponds to an unidentified processing method.
 coffee_new_1[is.na(coffee_new_1$Processing.Method) , ] <- "Other"
 
-# plot the distribution of the variable Processing.Method to confirm the output of the function count and check for outliers 
 ggplot(coffee_new_1, aes(Processing.Method)) + geom_bar(fill="steelblue", colour = "darkgreen", size = 1.2) + coord_flip() 
 ```
 
-The output shows no outliers for the Processing.Method variable - it also shows that both NA was correctly replaced by "Other".
-It is showing that "Washed/Wet" is the most used processing method and that "Pulped natural/ honey" is the least used.
-
-To conclude, both the count and ggplot functions show no outliers for the Processing.Method variable.
-
-
 # 5 -  Total.Cup.Points - score coffee on a standardized scale, from 0 to 100.
 
-This variable should range from 0 to 100 and, for a better quality coffee, it should have a value between 80 to 90 (Authentic Coffee Co., 2022).
-This variable represents an overall quality score for coffee and is the target variable of the regression model. Meaning, it is an important variable to answer the research question identified previously in this project.
-
 ```{r}
-# function displays the median value of Total.Cup.Points for each Country of origin
 aggregate(coffee_new_1$Total.Cup.Points, list(coffee_new_1$Country.of.Origin), FUN=mean)
 
-# function displays the distribution of the variable - to identify any possible outliers.
 ggplot(coffee_new_1, aes(Total.Cup.Points)) + geom_boxplot(color="black",fill="lightblue",linetype="dashed") + theme_minimal() + ggtitle("Quakers in the coffee quality")
 
 ```
 
-The output shows an average of Total.Cup.Points similar to all the countries in this data set. This means that there are not potential outliers for the Total.Cup.Points variable - the values range between 0 and 100.
-
-Moreover, the output shows that countries like Cote d'Ivoire, Haiti, India and Nicaragua have a poor Total.Cup.Points value, as it is less than 80.
-
-Moreover, the box plot output of the Total.Cup.Points shows possible outliers. Hence, it is necessary to use function min and max to obtain those outliers and further investigate them.
-
 ```{r}
-# boxplot function to identify the possible outlier
 bags_boxplot1 <- boxplot(coffee_new_1$Total.Cup.Points, plot = F)
 
-# minimum function will get this number as the minimum outlier possible
-# maximum function will get this number as the minimum outlier possible
 
 bags_threshold1 <- min(bags_boxplot1$out)
 bags_threshold2 <- max(bags_boxplot1$out)
 
-bags_threshold1 # returns 59.83, which is the minimum value possible for any outlier in this variable
-bags_threshold2 # returns 90.58, which is the maximum value possible for any outlier in this variable
+bags_threshold1 
+bags_threshold2 
 
-# These values are not outliers as they range between the accepted values of 0 to 100, even though they are extreme values.
 ```
 
-Concluding, this variable does not have outliers as all the values range from 0 to 100, for the Total.Cup.Points variable.
-
-
-Moreover, it is possible to investigate multiple numerical values in one plot.
 # 6 - Aroma, Flavor, Aftertaste, Acidity, Body, Balance, Uniformity, Clean.Cup, Sweetness
 
-The coffee quality can be measured by professionals according to several factors such as: Acidity, Aroma, Flavor, Balance, Sweetness, among others. They also grade each one of these factors in order to get the final score, which indicates the quality of this coffee (Souza, 2022) - corresponding to the Total.Cup.Points.
-
-Boxplot of these variables is presented below.
-
 ```{r}
-# the variable was not previously converted and it should be numeric type.
 coffee_new_1$Sweetness <- as.numeric(coffee_new_1$Sweetness)
 
-# the variable was not previously converted and it should be numeric type.
 coffee_new_1$Cupper.Points <- as.numeric(coffee_new_1$Cupper.Points)
 
-# boxplot all the numerical variables to investigate any possible outliers.
 
 boxplot(coffee_new_1$Aroma,coffee_new_1$Flavor,coffee_new_1$Aftertaste,main = "Boxplot 1 for comparision of three numerical variables", names = c("Aroma", "Flavor", "Aftertaste"), col = c("orange","red"), border = "brown", horizontal = TRUE, notch = TRUE)
 
@@ -503,115 +424,67 @@ boxplot(coffee_new_1$Acidity,coffee_new_1$Body,coffee_new_1$Balance,main = "Boxp
 boxplot(coffee_new_1$Uniformity,coffee_new_1$Clean.Cup,coffee_new_1$Sweetness,main = "Boxplot 3 for comparision of three numerical variables", names = c("Uniformity", "Clean.Cup", "Sweetness"), col = c("red","yellow"), border = "brown", horizontal = TRUE, notch = TRUE)
 ```
 
-The boxplot output above represented shows that there are possible outliers for variables Aroma, Acidity and Clean.Cup.
-
-To better understand this outliers, it is necessary to use the boxplot and minimum functions below presented.
 
 ```{r}
-# AROMA VARIABLE
 Aroma_boxplot <- boxplot(coffee_new_1$Aroma, plot = F)
 Aroma_threshold <- min(Aroma_boxplot$out)
 Aroma_threshold # value of the possible outlier for aroma is 5.08
 
-# ACIDITY VARIABLE
 Acidity_boxplot <- boxplot(coffee_new_1$Acidity, plot = F)
 Acidity_threshold <- min(Acidity_boxplot$out)
 Acidity_threshold # value of the possible outlier for aroma is 5.25
 
-# BODY VARIABLE
 Body_boxplot <- boxplot(coffee_new_1$Body, plot = F)
 Body_threshold <- min(Body_boxplot$out)
 Body_threshold # value of the possible outlier for aroma is 6.33
 
-# Clean.Cup VARIABLE
 Clean.Cup_boxplot <- boxplot(coffee_new_1$Clean.Cup, plot = F)
 Clean.Cup_boxplot_threshold <- min(Clean.Cup_boxplot$out)
 Clean.Cup_boxplot_threshold # value of the possible outlier for aroma is 6.33
 
-# subset function to extract the possible outliers and understand why this variables are displaying certain values.
 subset(coffee_new_1, Aroma == 5.08)
 subset(coffee_new_1, Acidity == 5.25)
 subset(coffee_new_1, Body == 6.33)
 subset(coffee_new_1, Clean.Cup == 0)
 ```
 
-The first one, happens when  Aroma = 5.08 and Acidity = 5.25. However, even thought these two variables are out of the mean values, they range between 0-10, which means that they should not be outliers.
-
-Finally, the output also shows a value of 6.33 for Body when Acidity is 7.08 - even thought is a high value for body when compared with the rest of the variable but it is still within the correct range.
-
-Meaning, the variables that make up the Total.Cup.Points variable do not present any outliers, as they all range between 0 and 10.
-
 
 # 7 - Cupper.Points and Clean.Cup
 
-Furthermore, the variables: Cupper.Points (Any negative marks that appear in the Uniformity), Clean Cup and Sweetness categories are deducted as two points per cup, with the varible Clean.Cup - refers to a coffee free of taints and defects (Souza, 2022).
-
 ```{r}
-# boxplot shows both variables graphically - identifying possible outliers
 
 boxplot(coffee_new_1$Cupper.Points,coffee_new_1$Clean.Cup,main = "Boxplot of Cupper Points and Clean Cup", names = c("Cupper.Points", "Clean.Cup"), col = c("orange","red"), border = "brown", horizontal = TRUE, notch = TRUE, size = 30)
 
-# count function to confirm there are no outliers as represented in the ggplot output
 count(coffee_new_1, 'Cupper.Points')
 count(coffee_new_1, 'Clean.Cup')
 ```
-
-The boxplot output shows possible outliers for these two variables.
-
-The count function was also used to confirm the output - function allows it to investigate the frequency of each variable and look for one that is out of the ordinary. 
-
-Furthermore, as the clean.cup variable corresponds to a coffee free of taints and defects, it makes sense to have 1057 count when clean cup is equal to 10. This means that 1057 coffee beans have no defects.
-
-Finally, function count shows how both variables range between 0 and 10, which is expected - there are no outliers and these variables do not need further investigation.
 
 
 # 8 - Moisture
 
 ```{r}
-# ggplot function to investigate any possible outliers.
 ggplot(coffee_new_1, aes(Moisture)) + geom_boxplot(color="purple",fill="blue",linetype="dashed") + theme_minimal() + ggtitle("Moisture of the Coffee Beans")
 
-# function to confirm the visual output
 count(coffee_new_1, 'Moisture')
 ```
 
-The ggplot output shows that this variable does present outliers. To confirm this output, count function is used to investigate this variables frequency.
-Most coffee beans have a 0.1 level of moisture levels - count function output shows that the previous identified extreme values are not outliers. Hence, the variable Moisture does not need further investigation.
-
-
 # 8 - Category.One.Defects and Category.Two.Defects
-
-According to Hetzel (2022), bean defects of Category One are rare, as are Quakers - imperfections in the coffee quality that affect its characteristics like Aroma, Acidity, etc.
-Bean defects of Category Two are more common and the distribution appears to be approximately log-normal.
 
 ```{r}
 count(coffee_new_1, 'Category.One.Defects')
 count(coffee_new_1, 'Category.Two.Defects')
 
-
-# boxplot shows both variables graphically - identifying possible outliers
-
 boxplot(coffee_new_1$Category.One.Defects,coffee_new_1$Category.Two.Defects,main = "Boxplot of Cupper Points and Clean Cup", names = c("Category.One.Defects", "Category.Two.Defects"), col = c("red","gold"), border = "brown", horizontal = TRUE, notch = TRUE)
 
-```
+``` 
 
-The boxplot shows possible outliers for both variables.
-The count function was also used to confirm the absence of outliers in these two variables.
-Both outputs show a high frequency of values when the category defects is equal to 0. This makes sense as the variable represents the presence of defects in coffee beans - meaning, the beans have good quality across different countries.
-
-Nevertheless, there are some extreme frequencies that correspond to higher values when compared to all the other ones - should be removed.
-
-(ggplot output shows many outliers for the Category.One.Defects and Category.Two.Defects variables - use boxplot and min functions to remove these outliers).
 
 ```{r}
-# boxplot to identify all these outliers
 category_boxplot <- boxplot(coffee_new_1$Category.Two.Defects, plot = F)
 
-# minimum function will set one outlier as the first outlier, which means that all numbers above that one will be considered to be outliers
 category_threshold <- min(category_boxplot$out)
 
 
-# function to remove the previously identified outliers and store the clean variables into a new dataset
 dataset_clean <- coffee_new_1[coffee_new_1$Category.Two.Defects< min(category_boxplot$out), ]
 dataset_clean
 
@@ -619,36 +492,15 @@ dataset_clean
 ggplot(dataset_clean, aes(Category.One.Defects,Category.Two.Defects)) + geom_boxplot(color="black",fill="gold") + theme_minimal() + ggtitle("Category Defects")
 ```
 
-As confirmed by the last boxplot output, these two variables have no outliers - they were successfully removed. 
 
-
-################ EDA ################
-# 4. Exploratory Data Analysis
-################ EDA ################
-
-## 4.1 EDA Plan:
-
-It is crucial to look at the summary statistics when starting the exploratory data analysis of the data set. The summary function gives an idea of how normally distributed each variable is, when the median and mean values are similar. 
+# 4.EDA
 
 ```{r}
 summary(coffee_new_1)
 ```
 
-The summary function output shows that variables like Aroma, Flavor, Acidity, Body, Balance, Sweetness, Clean.Cup, Total.Cup.Points have similar values for median and mean - it is possible to assume that these variables present a normal distribution. 
-
-Nevertheless, the variables presented above need further visual investigation, to actually understand if they have symmetric distribution.
-
-
-################
-#EDA PLAN  STARTS
-################
-
-# 4.1 - Explore each variable individually to understand if they are normally distributed and can be used in a Machine Learning moodel - starting by the target variable Total.Cup.Points.
-
-Analysis of green coffee includes a detailed report of the green coffee grading, cupping score, ﬂavor proﬁle as. well as possible roast proﬁles and brew methods (Please refer to the GitHub repository to understand what variables are being investigated in this project's EDA: Please find the link - git@github.com:JPPedra/DDA_Coursework.git)
-
+# 4.1 - Explore each variable individually
 ```{r}
-# ggplot function to investigate the distribution of the variable Total.Cup.Points
 
 ggplot(coffee_new_1, aes(x=Total.Cup.Points)) + geom_histogram(aes(y=..density..), binwidth=1, colour="black", fill="goldenrod2") +
   # Overlay with transparent (use the alpha parameter) blue density plot  
@@ -657,14 +509,6 @@ ggplot(coffee_new_1, aes(x=Total.Cup.Points)) + geom_histogram(aes(y=..density..
   ggtitle("Histogram and density plot of Cup Score")
 ```
 
-The histogram output shows that Total.Cup.Points variable is normally distributed but slightly skewed to the right.
-Moreover, the output also shows that most of the coffee beans have a score between 80 and 85.
-
-Many research shows that Total.Cup.Points represents the coffee quality by gathering data from different variables: Aroma, Flavor, Aftertaste, Acidity, Body, Balance and Sweetness - hence, these variables need further investigation presented further in this project's EDA section. (Rachel, 2016; Porto, 2022 and Hyde, 2022).
-
-# Green Analysis: Research (Daily Coffee, 2020) shows that a cofee green analysis investigates coffee grading, cupping score, flavor and roast profiles. Hence, it is crutial to analyse variables like Category.Defects and Quakers.
-
-Having said that, it is important to understand how variables Category.One/Two.Defects and Quakers behave - as having Quakers leads to defects in coffee beans - Meaning, these three variables have a relationship between them.
 
 ```{r}
 library(ggplot2)
@@ -684,42 +528,12 @@ plots <- ggarrange(plot1, plot2, plot3,
 plots
 ```
 
-The output shows two things:
-
-1 - Category.One.Defects type of bean are rare, as are Quakers
-
-2 - Category.Two.Defects bean are more common and the distribution appears to be approximately log-normal.
-
-Moreover, the histogram representing the variable Quakers shows that this variable is not normal distributed. This happens because the collected coffee beans do not have many defects - as they were correctly collected. Hence, it is expected to see a distribution skewed to the left, when visually investigating the variable Quakers.
-
-The output also shows that variables category defects have a higher density when the number of defects is very low.
-
-Let's have a quick look at the relationship between three variables
 ```{r}
 qplot(Category.One.Defects,Category.Two.Defects, data = coffee_new_1, colour = Quakers)
 ```
 
-The scatter plot above shows the relationship between the Category.One.Defect and Category.Two.Defects with the quakers colour encoded. This plot indicates that both the category defect have very low Quakers, therefore, the coffee beans collected has little defects. Additionally, most of these values for both of category defects are low.
-
-Moreover, it is now necessary to investigate the variables that make the Total Cup Points variable, as mentioned earlier in this section; Cupping Scores Analysis Recent research shows that variables like Aroma and Flavor make up the cupping score - that makes it possible to investigate the quality of the coffee (Porto, 2022).
-
-# Cupping Score analysis investigates the following variables: Acidity, Aroma, Flavor, Aftertaste, Body, Balance, Uniformity 
-
-As outlined before in this project, the target variable is total Total.Cup.Points that corresponds to the total quality of the coffee beans.
-
-Therefore, variables like Acidity, Aroma, Flavor, Aftertaste, Body, Balance, Uniformity should have a high correlated relationship with the target variable and because of that need further investigation.
-
-Once again, as outlined above in the EDA section (with the summary function), these variables apparent to be normal distributed but it is necessary to plot them visually and confirm the summary statistics.
-
 
 ```{r}
-# (Note: Displaying 4 histograms together at a time, is done using the par() function.)
-
-#variable's distribution with histogram - histogram is used to display the distribution of continuous variables.
-
-# the variables visual representation is divided into two parts; for a better understanding of the data.
-# Part I with variables: Aroma, Flavor, Aftertaste and Acidity.
-# Part II with variables: Body, Balance, Sweetness and Clean.Cup.
 
 par(mfrow=c(1,4)) # Part I
 
@@ -742,14 +556,6 @@ hist(coffee_new_1$Sweetness, main="Histogram of coffee Sweetness",xlab="Coffee´
 hist(coffee_new_1$Clean.Cup, main="Histogram of coffee Clean.Cup",xlab="Coffee´s Clean.Cup", ylab="", col = " dark red")
 ```
 
-Part I output shows that the four variables are normally distributed and, Part II, shows that variables Body and Balance present a symmetric distribution. 
-However, variables Sweetness and Clean.Cup do not behave the same way and need further investigation, as they do not present a normal distribution - skewed to the right.
-
-Therefore, both variables Sweetness and Clean.Cup need further investigation and should probably not be included in the model as they do not look normal distributed.
-
-
-# Variables that do not look normal distributed in the histograms ploted above.
-# Sweetness
 
 ```{r}
 ggplot(coffee_new_1, aes(x=Sweetness)) + geom_histogram(aes(y=..density..), 
@@ -765,15 +571,6 @@ ggplot(coffee_new_1, aes(x=Sweetness)) + geom_histogram(aes(y=..density..),
 count(coffee_new_1, 'Sweetness')
 ```
 
-ggplot is used to get a better insight into the variable sweetness. The output confirms that this variable is not normal distributed. 
-
-Sweetness are generally highly rated with little deviation from scores of 10, as shown in the table function output and this variable´s ggplot histogram.
-
-Research shows that coffee beans are known for their sweetness - Colombia, Kenya, Guatemala, Panama, and Ethiopia are the countries producing the most sweet coffee beans (Coffee, 2022).
-
-Therefore, even if the variable does not look normal distributed, it makes sense not to be.
-
-# Clean.Cup
 
 ```{r}
 ggplot(coffee_new_1, aes(x=Clean.Cup)) + geom_histogram(aes(y=..density..), 
@@ -789,13 +586,7 @@ ggplot(coffee_new_1, aes(x=Clean.Cup)) + geom_histogram(aes(y=..density..),
 count(coffee_new_1, 'Clean.Cup')
 ```
 
-ggplot is used to get a better insight into the variable Clean.Cup The output confirms that this variable is not normal distributed. 
 
-The histogram and count function show that the variable is not normal distributed. However, this variable refers to a coffee free of taints and defects (Maria, 2022). This means that once again makes sense for the variable to not be normal distributed. 
-
-The analysis and investigation of these two variables is now completed.
-
-Let's explore the variation in sample information attributes  (Country.of.origin, Number.of.Bags. Bag.weight, processing.method) utilising gridExtra package
 ```{r}
 # country of origin
 sample_info_1 <- coffee_new_1%>%
@@ -827,10 +618,8 @@ library(gridExtra)
 grid.arrange(sample_info_1, sample_info_2, sample_info_3, sample_info_4)
 ```
 
-# 4.2 - analyse the continuous variables graphically against the Total.Cup.Points variable to understand if they affect that variable. If variables affect the Total.Cup.Points of coffee quality, then they should be taken into the Total.Cup.Points regression model.
-Also, analyse the relation between variables.
+# 4.2 - analyse the continuous variables graphically against the Total.Cup.Points variable
 
-# Country.of.Origin
 
 ```{r}
 colnames(coffee_new_1)
@@ -845,14 +634,6 @@ coffee_new_1 %>%
     theme_bw()
 ```
 
-The output shows that Mexico, Guatemala and Colombia are the countries that produce more quantities of coffee.
-The output shows it impossible to find a pattern between the relationship of total cup points and country of origin.
-Additionally, countries like New Guinea, Ecuador, India, Zambia, etc represent the countries with the least total cup points.
-
-
-# Country.of.Origin VS Processing.Method
-
-Furthermore, it is necessary to investigate which processing method is used the most and the least - with the countries that produce more coffee, as outlined in the data cleaning stage of this project - this investigation will be presented below in the EDA part of the project.
 
 ```{r}
 library(tidyverse)
@@ -872,12 +653,6 @@ coffee_new_1%>%
   scale_fill_manual(values=c("azure3","#0072B2"))
 ```
 
-The output shows that Natural/Dry processing methods are mostly used in Brazil. The plot also shows that Washed/Wet processing methods are mostly used in Countries like Mexico, Guatemala and Colombia - as these countries produce more coffee, it is possible to conclude that Washed and Wet processing methods produce more quantities of coffee beans.
-
-
-# Processing.Method vs Total.Cup.Points
-
-Website used to compute this plot: https://r-graph-gallery.com/267-reorder-a-variable-in-ggplot2.html.
 
 ```{r}
 coffee_new_1 %>%
@@ -888,12 +663,7 @@ coffee_new_1 %>%
     theme(legend.position="none") +
     xlab("")
 ```
-The output shows that Washed/Wet processing method is the one with lowest coffee quality scores (Total Cup Points) and that Natural/Dry processing method is the one with most total cup points.
 
-Furthermore, there are no visible trends within the data as all variables have similar means, meaning, similar coffee quality scores.
-
-
-# Category.One.Defects vs Category.Two.Defects vs Quakers
 
 ```{r}
 # The plot below shos too much information - it is not necessary to plot the data like this.
@@ -910,32 +680,12 @@ plot(Quakers, Quakers, Total.Cup.Points="Quakers vs Coffee Score",
    xlab="Quakers", ylab="Total.Cup.Points", pch=19, col = "dark red")
 ```
 
-The output shows that for best coffee quality scores ( >80 Total.Cup.Points) happens when the number of defects and Quakers are low.
-Therefore, variables like Category.One.Defects, Category.Two.Defects and Quakers affect the likelihood of increasing/decreasing the variable Total.Cup.Points - and should be included in the regression model.
 
-# Moisture vs Total.Cup.Points
 
 ```{r}
 ggplot(coffee_new_1, aes(Moisture,Total.Cup.Points)) + geom_point(col = "dark red") + ggtitle("Moisture vs Total.Cup.Poins")
 ```
 
-The output shows that a relationship between variables Total.Cup.Points and Moisture does not exist.
-
-Subsequent research (Rachel, 2016), shows that Total.cup.points variable can be splited into 3 categories that represent the quality of the coffee beans.
-These categories are presented below:
-
-"65 – 80 = Commodity Coffee The type used to make supermarket coffee, blends and instant.
-80+ = Specialty Coffee The flavours are more subtle, the cup more balanced. At Pact we only buy coffees of 84+, though most of them score 86+.
-90+ = Presidential Award These prestigious coffees make up less than 1% of the specialty coffee market, they’re just that rare. And that good."
-
-Mutate function is used below to create these categories and represent them visually. 
-
-# CODE DELETED because having the processing method variable as a category would not help anzwering the reserach question.
-
-## Relationship between the numerical and total.cup.point
-
-It is also important to investigate how these variables relate between themselves, taking into consideration the total.cup.points.
-This to understand the relationship between the numerical variables - will further help when computing the regression model.
 
 ```{r}
 qplot(Aroma, Flavor,  data = coffee_new_1, colour = Total.Cup.Points)
@@ -948,13 +698,6 @@ qplot(Cupper.Points, Clean.Cup, data = coffee_new_1, colour = Total.Cup.Points)
 qplot(Balance,Uniformity, data = coffee_new_1, colour = Total.Cup.Points)
 ```
 
-The output shows:
-
-1- Aroma and Flavor are correlated.
-2- Aftertaste and Acidity are correlated.
-3- Body and Acidity are correlated.
-4- Uniformity and Clean.cup do not present any correlation, just like between Clean cup and cupper points.
-5- Finally, variables Uniformity and balance are not correlated.
 
 Scatter plot matrix and a heatmap are two very powerful way of showing the correlation between all continuous variables. The Pearson's correlation coefficient, `r`, will be extracted and implemented. 
 
@@ -1058,16 +801,3 @@ cor.test(coffee_new_1$Processing.Method.Num, coffee_new_1$Total.Cup.Points)
 ```
 There is no correlations between the Processing.Methods and the target variable, therefore, will not be used for the predictive modelling.
 
-# REFERENCES:
-
-1- https://www.boomtowncoffee.com/stories/what-is-cupping
-2- https://bounbeans.com/blog-7-cup-score
-3- https://www.pactcoffee.com/blog/speciality-coffee-quality-scores-explained
-4- https://dailycoffeenews.com/2020/04/29/physical-analysis-of-green-coffee-what-to-measure-record-and-track/
-5- https://dialupthecoffee.com/naturally-sweet-coffee/
-6 - https://www.sovdacoffee.com/blog/2020/9/10/the-science-behind-defective-beans-and-how-they-affect-your-roast#:~:text=Quakers%20are%20coffee%20beans%20that,it%20be%20free%20of%20quakers.
-7-https://library.sweetmarias.com/glossary/clean-cup/#:~:text=Clean%20cup%20refers%20to%20a,flavors%20or%20other%20off%20notes.
-
-8-https://skymountaincoffee.com/what-is-specialty-grade-coffee/#:~:text=Types%20of%20Defects,sticks%20or%20stones%2C%20water%20damage.
-
-9-https://stackoverflow.com/questions/16961921/plot-data-in-descending-order-as-appears-in-data-frame
