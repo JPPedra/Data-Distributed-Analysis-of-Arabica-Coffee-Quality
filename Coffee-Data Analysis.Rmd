@@ -272,11 +272,9 @@ Moreover,
   - Created a function to fix this so that all the values are converted to numeric and all have the same unit
   
 ```{r}
-# 4) Will now load the results from the function that was performed in Pyspark (Hawra's HPCI technqiue)
+#Will now load the results from the function that was performed in Pyspark (Hawra's HPCI technqiue)
 coffee_new_1 <- read.csv("Data/ArabicaCoffeeBeansNew-UnitConversionWithString.csv")
-# Lets have a look at the `Bag.Weight`
-table(coffee_new_1$Bag.Weight)
-str(coffee_new)
+
 ```
 
 ```{r}
@@ -293,12 +291,12 @@ colSums(is.na(coffee_new_1))
 ```{r}
 # Then perform NA imputation to Bag weight
 
-#median_Bag_weight <- median(coffee_new_1$Bag.Weight, na.rm = T)
-#coffee_new_1[is.na(coffee_new_1$Bag.Weight), 10.000] = median_Bag_weight
+median_Bag_weight <- median(coffee_new_1$Bag.Weight, na.rm = T)
+coffee_new_1[is.na(coffee_new_1$Bag.Weight), 10.000] = median_Bag_weight
 
 # Then drop any other NA from the character variables
 
-#coffee_new_1 <- na.omit(coffee_new_1)
+coffee_new_1 <- na.omit(coffee_new_1)
 ```
 
 
