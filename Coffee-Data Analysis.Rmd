@@ -108,58 +108,58 @@ Through the validate Package we check if in the data set the variables are accur
 The coffee.rules are useful to check the quality of data. We have created the data rules based on the 'structure' and on the 'summary' functions.
 
 ```{r}
-coffee.rules <- validator(
+#coffee.rules <- validator(
 #check if data type is correct
-check.NBags.DataType = is.numeric(Number.of.Bags),
-check.Aroma.DataType = is.numeric(Aroma),
-check.Flavor.DataType = is.numeric(Flavor),
-check.Taste.DataType = is.numeric(Aftertaste),
-check.Acidity.DataType = is.numeric(Acidity),
-check.Body.DataType = is.numeric(Body),
-check.Balance.DataType = is.numeric(Balance),
-check.Uniformity.DataType = is.numeric(Uniformity),
-check.CleanCup.DataType = is.numeric(Clean.Cup),
-check.TotCupPoints.DataType = is.numeric(Total.Cups.Points),
-check.CupperPoints.DataType = is.numeric(Cupper.Points),
-check.Moisture.DataType = is.numeric(Moisture),
-check.CategoryOneDef.DataType = is.numeric(Category.One.Defects),
-check.ProcessMeth.DataType = is.factor(Processing.Method),
-check.Quakers.DataType = is.factor(Quakers),
+#check.NBags.DataType = is.numeric(Number.of.Bags),
+#check.Aroma.DataType = is.numeric(Aroma),
+#check.Flavor.DataType = is.numeric(Flavor),
+#check.Taste.DataType = is.numeric(Aftertaste),
+#check.Acidity.DataType = is.numeric(Acidity),
+#check.Body.DataType = is.numeric(Body),
+#check.Balance.DataType = is.numeric(Balance),
+#check.Uniformity.DataType = is.numeric(Uniformity),
+#check.CleanCup.DataType = is.numeric(Clean.Cup),
+#check.TotCupPoints.DataType = is.numeric(Total.Cups.Points),
+#check.CupperPoints.DataType = is.numeric(Cupper.Points),
+#check.Moisture.DataType = is.numeric(Moisture),
+#check.CategoryOneDef.DataType = is.numeric(Category.One.Defects),
+#check.ProcessMeth.DataType = is.factor(Processing.Method),
+#check.Quakers.DataType = is.factor(Quakers),
 
-CheckWeight = is.element(Bag.Weight, ("kg")), #check unit of measure
+#CheckWeight = is.element(Bag.Weight, ("kg")), #check unit of measure
 
 #check spelling
-CheckProcessMeth = is.element(Processing.Method,
-c("Washed / Wet", "Natural/ Dry", "Pulped natural / honey", "Semi-washed / Semi-pulped", "Other")),
-CheckColor = is.element(Color,
-c("Green", "None" , "Bluish-Green", "Blue-Green")), #check spelling
-
-CheckNoBags = Number.of.Bags>0, #check no negatives
-CheckFlavor = Flavor>0, #check no negatives
-CheckAftertaste = Aftertaste>0, #check no negatives
-CheckAcidity = Acidity>0, #check no negatives
-CheckBody = Body>0, #check no negatives
-CheckBalance = Balance>0, #check no negatives
-CheckMoisture = Moisture>0, #check no negatives
-CheckQuakers = Quakers>=0, #check no negatives
-
-CheckMaxLowAltitute = altitude_low_meters>=1,
-CheckMinAltitute = altitude_low_meters <= 190164,
-CheckMaxHighAltitute = altitude_high_meters>=1,
-CheckMinHighAltitute = altitude_high_meters <= 190164,
-CheckMaxMeanAltitute = altitude_mean_meters>=1,
-CheckMinMeanAltitute = altitude_mean_meters <= 190164
-)
+#CheckProcessMeth = is.element(Processing.Method,
+#c("Washed / Wet", "Natural/ Dry", "Pulped natural / honey", "Semi-washed / Semi-pulped", "Other")),
+#CheckColor = is.element(Color,
+#c("Green", "None" , "Bluish-Green", "Blue-Green")), #check spelling
+#
+#CheckNoBags = Number.of.Bags>0, #check no negatives
+#CheckFlavor = Flavor>0, #check no negatives
+#CheckAftertaste = Aftertaste>0, #check no negatives
+#CheckAcidity = Acidity>0, #check no negatives
+#CheckBody = Body>0, #check no negatives
+#CheckBalance = Balance>0, #check no negatives
+#CheckMoisture = Moisture>0, #check no negatives
+#CheckQuakers = Quakers>=0, #check no negatives
+#
+#CheckMaxLowAltitute = altitude_low_meters>=1,
+#CheckMinAltitute = altitude_low_meters <= 190164,
+#CheckMaxHighAltitute = altitude_high_meters>=1,
+#CheckMinHighAltitute = altitude_high_meters <= 190164,
+#CheckMaxMeanAltitute = altitude_mean_meters>=1,
+#CheckMinMeanAltitute = altitude_mean_meters <= 190164
+#)
 ```
 The 'quality.check' function used below will check if all items in the coffee.rules created, can pass or fail. Moreover, we can check how many missing values there are for each variable. If a rule do not pass, the error column will display 'True', otherwise it display 'False'
 ```{r}
-quality.check <- confront(coffee_new, coffee.rules) # To check the coffee quality rules
-summary (qual.check)
+#quality.check <- confront(coffee_new, coffee.rules) # To check the coffee quality rules
+#summary (qual.check)
 ```
 
 Through the plot we can visualize better the errors found in the quality check.
 ```{r}
-plot (quality.check)#to visualize the quality check of the coffee through a plot
+#plot (quality.check)#to visualize the quality check of the coffee through a plot
 ```
 
 - As a results, in order to answer our research, we will subset the dataset to contain the following variables: 
@@ -272,19 +272,6 @@ Moreover,
   - Created a function to fix this so that all the values are converted to numeric and all have the same unit
   
 ```{r}
-# 1) replace NA with fake number as the function below is sensitive to NAs 
-coffee_new$Bag.Weight <- coffee_new$Bag.Weight %>% 
-  replace_na("99999 kg")
-
-# 2) Check that NAs in Bag weight have been temporarily been replaced
-colSums(is.na(coffee_new)) 
-
-# 3) Will write and export this file in order to perform the function in PySpark (Hawra's HPCI technique)
-write.csv(coffee_new, file = "Data/Arabica-coffee-half-modified.csv", row.names = FALSE)
-
-# 4) Will now load the results from the function that was performed in Pyspark (Hawra's HPCI technqiue)
-coffee_new_1 <- read.csv("Data/ArabicaCoffeeBeansNew-UnitConversionWithString.csv")
-
 # 4) Lets have a look at the `Bag.Weight`
 table(coffee_new_1$Bag.Weight)
 str(coffee_new)
@@ -304,12 +291,12 @@ colSums(is.na(coffee_new_1))
 ```{r}
 # Then perform NA imputation to Bag weight
 
-median_Bag_weight <- median(coffee_new_1$Bag.Weight, na.rm = T)
-coffee_new_1[is.na(coffee_new_1$Bag.Weight), 10.000] = median_Bag_weight
+#median_Bag_weight <- median(coffee_new_1$Bag.Weight, na.rm = T)
+#coffee_new_1[is.na(coffee_new_1$Bag.Weight), 10.000] = median_Bag_weight
 
 # Then drop any other NA from the character variables
 
-coffee_new_1 <- na.omit(coffee_new_1)
+#coffee_new_1 <- na.omit(coffee_new_1)
 ```
 
 
