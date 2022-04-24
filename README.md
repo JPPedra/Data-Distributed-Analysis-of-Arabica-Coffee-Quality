@@ -61,7 +61,7 @@ The current dataset, `ArabicaCoffeeBeans.csv`, which can be found in the Data fo
 - Certification.Contact
 
 ## Subsetted Dataset for Exploratory Data Analysis:
-From the Data Cleaning and Preparation, the dataset has been subsetted and the following attributes is used to exploratory data analysis:
+From the Data Cleaning and Preparation, the dataset has been subsetted and the following attributes are used for exploratory data analysis:
   
 - Country.of.Origin       
 - Number.of.Bags               
