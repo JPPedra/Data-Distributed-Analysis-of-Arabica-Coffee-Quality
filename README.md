@@ -1,4 +1,4 @@
-# CS5811 - Data Distributed Analysis 
+# Data-Distributed-Analysis-of-Arabica-Coffee-Quality
 
 Reference:https://github.com/jldbc/coffee-quality-database
 This GitHub Repository contains the group work performed for the Data Distributed Analysis. 
