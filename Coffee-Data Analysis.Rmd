@@ -1,6 +1,6 @@
 ---
 title: "CS5811-Data Distributed Analysis-Data Analysis on Arabica Coffee Beans"
-author: "Hawra Nawrozzadeh, Joao Pedro Azevedo, and Roberta Sammarco"
+author: "Hawra Nawrozzadeh and Joao Pedro Azevedo"
 date: "10/02/2022"
 output: html_document
 version: 1.0
@@ -9,40 +9,74 @@ editor_options:
 ---
 
 # 1. Introduction
+This R Markdown report provides an data analysis of the dataset on the Arabica beans that was extracted from the Coffee Quality Institute. The aim of this report is to perform a supervised machine learning to answer the following research question: 
+***"Given the attributes of this dataset, can we predict the overall coffee quality score?"*** 
 
-- The Dataset is on Coffee Arabica Beans 
-- The metadata is as followed:
+---- 
 
-Quality Measures Metadata    
- - Aroma                       
- - Flavor                       
- - Aftertaste                   
- - Acidity                     
- - Body                       
- - Balance              
- - Uniformity              
- - Cup Cleanliness           
- - Sweetness            
- - Moisture                
- - Defects          
+The metadata on the Arabica coffee beans is as described as below:
+| Attributes            | Description                                               |
+| :----                 | :----                                                     |
+| ID                    | ID of each coffee bean sample                             |   
+| Country.of.Origin     | Country of Origin of Beans                                |
+| Farm.Name             | Name of the Farm                                          |
+| Lot.Number            | The lot number of each coffee sample                      |
+| Mill                  | Organisation for grinding the coffee bean to cup?         |
+| ICO.Number            | Information Commissioner's Office (ICO) for each company  |
+| Company               | Company which made the coffee                             |
+| Altitude              | Altitude of the farm                                      |
+| altitude_low_meters   | Minimum altitude of the farm                              |
+| altitude_high_meters  | Maximum altitude of the farm                              |
+| altitude_mean_meters  | Altitude of the farm                                      |
+| unit_of_measurement   | Unit of Measurement for the Altitude of the farm          |
+| Region                | Region of each coffee sample                              |
+| Producer              | Producer of each company                                  |
+| Number.of.Bags        | Number of bags harvested                                  |
+| Bag.Weight            | Weight of each harvested bag                              |
+| In.Country.Partner    | Partner of the Company in the Country of Origin           |
+| Harvest.Year          | The year it was harvest                                   |
+| Grading.Date          | Date the Coffee was reviewed                              |
+| Owner                 | Owner of the Company or the Company Name                  |
+| Owner.1               | Owner of the Company or the Company Name                  |
+| Variety               | Variety of Coffee                                         |
+| Processing.Method     | Method by Which the Beans were Processed                  |
 
-Farm Metadata     
-- Owner           
-- Country of Origin    
-- Farm Name            
-- Lot Number        
-- Mill              
-- Company            
-- Altitude          
-- Region            
+Attributes on the cupping scores Metadata:
+| Attributes            | Description                                                 |
+| :----                 | :----                                                       |
+| Aroma                 | Reviewer's Score of Aroma on a 1-10 scale                   |
+| Flavor                | Reviewer's Score of Flavor on a 1-10 scale                  |
+| Aftertaste            | Reviewer's Score of Aftertaste on a 1-10 scale              |
+| Acidity               | Reviewer's Score of Acidity on a 1-10 scale                 |
+| Body                  | Reviewer's Score of Body on a 1-10 scale                    |
+| Balance               | Reviewer's Score of Balance on a 1-10 scale                 |
+| Uniformity            | Reviewer's Score of Uniformity on a 1-10 scale              |
+| Clean.Cup             | Reviewer's Score of "Transparency of a cup" on a 1-10 scale |
+| Sweetness             | Reviewer's Score of Sweetness on a 1-10 scale               |
+| Cupper.Point          | Reviewer's Holistic Score of the cup on a 1-10 scale        |
+| Total.Cup.Points      | Sum of the Reviewer's Scores                                |
 
-Bean Metadata     
-- Processing Method 
-- Color             
-- Species (arabica)
+Attributes on the green analysis Metadata:
+| Attributes            | Description                                                                   |
+| :----                 | :----                                                                         |
+| Mositure              | Moisture percentage from Green Analysis                                       |
+| Category.One.Defects  | Major defects in the beans                                                    |
+| Quakers               | An unripe bean	that appears pale	when roasted with	a	cereal or bitter flavor |
+| Color                 | Color of the Greens                                                           |
+| Category.Two.Defects  | Minor defects in the beans                                                    |
+| Species               | Arabica coffee bean species                                                   |
 
-- Research Question: 
-"Given the attributes of this dataset, can we predict the overall coffee quality score?"
+Attributes on the certification information Metadata:
+| Attributes            | Description                                                                   |
+| :----                 | :----                                                                         |
+| Expiration            | Expiration of the certification of the bean                                   |
+| Certification.Body    | Certification Body of each company                                            |
+| Certification.Address | Certification Address of each company                                         |
+| Certification.Contact | Certification Contact of each company                                         |
+
+----
+
+In order to achieve and perform machine learning, the first stage is to preform data cleaning and preparation in order to optimise the dataset and to ensure the quality of the dataset is accurate, consistent, and reliable. Exploratory Data Analysis will than be performed to explore and find patterns within the dataset that will provide further insights to approach and answer the research utilizing supervised learning technique accordingly. This report will also include importing results from high performance techniques (from Spark) in certain aspects of data cleaning and EDA.
 
 # 2. Loading the Libraries
 
