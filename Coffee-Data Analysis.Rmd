@@ -11,10 +11,8 @@ editor_options:
 # 1. Introduction
 This R Markdown report provides an data analysis of the dataset on the Arabica beans that was extracted from the Coffee Quality Institute. The aim of this report is to perform a supervised machine learning to answer the following research question: 
 ***"Given the attributes of this dataset, can we predict the overall coffee quality score?"*** 
-
----- 
-
 The metadata on the Arabica coffee beans is as described as below:
+---- 
 | Attributes            | Description                                               |
 | :----                 | :----                                                     |
 | ID                    | ID of each coffee bean sample                             |   
@@ -73,7 +71,6 @@ Attributes on the certification information Metadata:
 | Certification.Body    | Certification Body of each company                                            |
 | Certification.Address | Certification Address of each company                                         |
 | Certification.Contact | Certification Contact of each company                                         |
-
 ----
 
 In order to achieve and perform machine learning, the first stage is to preform data cleaning and preparation in order to optimise the dataset and to ensure the quality of the dataset is accurate, consistent, and reliable. Exploratory Data Analysis will than be performed to explore and find patterns within the dataset that will provide further insights to approach and answer the research utilizing supervised learning technique accordingly. This report will also include importing results from high performance techniques (from Spark) in certain aspects of data cleaning and EDA.
